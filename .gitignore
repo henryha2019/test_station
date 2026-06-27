@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# Data / artifacts (regenerable)
+vision/data/
+vision/models/
+vision/manifest*.csv
+logs/
+out/
+*.png
+!docs/**/*.png
+
+# OS
+Thumbs.db
+.DS_Store

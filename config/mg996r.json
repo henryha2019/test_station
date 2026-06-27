@@ -1,0 +1,41 @@
+{
+  "dut_id": "MG996R",
+  "description": "MG996R metal-gear servo — functional (commanded move + measured response) AND visual EOL test.",
+  "firmware": "SERVOTEST-UNO 2.0",
+
+  "functional": {
+    "pwm_us": { "min": 1000, "center": 1500, "max": 2000, "freq_hz": 50 },
+    "settle_ms": 600,
+    "comment": "Limits are per-measurement spec windows. The instrument reports raw readings; the host checks them against these. Tune to your golden-sample population.",
+    "limits": {
+      "idle_mA":       { "max": 30 },
+      "hold_mA":       { "max": 80 },
+      "move_mA":       { "min": 120, "max": 700 },
+      "range_deg":     { "min": 100, "max": 140 },
+      "center_off_deg":{ "max": 12 },
+      "speed_dps":     { "min": 180, "max": 700 },
+      "direction":     { "expect": "increasing" }
+    }
+  },
+
+  "vision": {
+    "classes": ["OK", "horn_missing", "case_defect", "foreign_object"],
+    "pass_class": "OK",
+    "image_size": [96, 96],
+    "model_path": "vision/models/servovision_int8.tflite",
+    "operating_point": {
+      "comment": "Defect-recall priority: only PASS vision when P(OK) is high. Raising ok_threshold trades false-rejects (retest) for fewer escapes (missed defects).",
+      "defect_recall_target": 0.98,
+      "ok_threshold": 0.62
+    },
+    "espcam_url": "http://192.168.4.1/capture"
+  },
+
+  "station": {
+    "uno_port": "COM3",
+    "uno_baud": 115200,
+    "hmi_port": "COM5",
+    "hmi_baud": 115200,
+    "sensors": { "as5600_addr": "0x36", "ina219_addr": "0x40" }
+  }
+}

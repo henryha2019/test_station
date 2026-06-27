@@ -1,0 +1,8 @@
+# Core host / orchestrator / analysis. The simulated demo runs on these alone.
+numpy>=1.24
+pillow>=10.0
+matplotlib>=3.7
+
+# Real hardware only (servo functional instrument + ESP32 HMI over USB serial).
+# Not needed for --simulate.
+pyserial>=3.5
