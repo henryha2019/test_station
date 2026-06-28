@@ -3,7 +3,7 @@
 Examples:
   python -m host.app --simulate --count 10 --random        # headless sim run
   python -m host.app --simulate --ui                        # interactive HMI (sim)
-  python -m host.app --port COM3 --hmi-port COM5 --ui       # live hardware
+  python -m host.app --port COM3 --ui                       # live single-board ESP32-CAM
 """
 from __future__ import annotations
 
@@ -37,14 +37,18 @@ def build_hmi(args):
 
 def make_station(args, cfg) -> Station:
     log = TraceLog(args.log) if args.log else None
-    hmi = build_hmi(args)
     if args.simulate:
         inst = SimInstrument(cfg, scenario=args.scenario, seed=args.seed)
         cam = SimCamera(cfg, dut_class=args.dut_class, seed=args.seed)
+        hmi = build_hmi(args)
     else:
-        inst = SerialInstrument(args.port, cfg.station.get("uno_baud", 115200))
+        # Single board: functional + HMI over USB serial; camera over Wi-Fi.
+        inst = SerialInstrument(args.port, cfg.station.get("mcu_baud", 115200))
         url = args.espcam_url or cfg.vision.espcam_url
         cam = EspCamCamera(url, cfg.vision.image_size)
+        # OLED is on the same MCU -> push HMI over the instrument link, unless a
+        # separate display node was requested.
+        hmi = build_hmi(args) if (args.hmi_port or args.hmi_console) else hmi_mod.SharedSerialHmi(inst)
     inspector = make_inspector(cfg)
     return Station(cfg, inst, cam, inspector, log, hmi)
 
@@ -88,9 +92,9 @@ def main(argv=None) -> int:
     p = argparse.ArgumentParser(description="PogoTest dual-criteria servo station")
     p.add_argument("--config", default=str(DEFAULT_CONFIG))
     p.add_argument("--simulate", action="store_true", help="run with simulated instrument + camera")
-    p.add_argument("--port", help="Uno serial port (implies hardware mode)")
-    p.add_argument("--espcam-url", help="override ESP32-CAM /capture URL")
-    p.add_argument("--hmi-port", help="ESP32 HMI serial port")
+    p.add_argument("--port", help="ESP32-CAM serial port for functional + HMI (implies hardware mode)")
+    p.add_argument("--espcam-url", help="ESP32-CAM /capture URL (default from config)")
+    p.add_argument("--hmi-port", help="separate display node serial port (2-board layout; optional)")
     p.add_argument("--hmi-baud", type=int, default=115200)
     p.add_argument("--hmi-console", action="store_true", help="print HMI frames to stdout")
     p.add_argument("--ui", action="store_true", help="launch the Tkinter station HMI")

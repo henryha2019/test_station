@@ -32,10 +32,9 @@
   },
 
   "station": {
-    "uno_port": "COM3",
-    "uno_baud": 115200,
-    "hmi_port": "COM5",
-    "hmi_baud": 115200,
-    "sensors": { "as5600_addr": "0x36", "ina219_addr": "0x40" }
+    "comment": "Single-board ESP32-CAM: functional + HMI over USB serial (mcu_port); camera over Wi-Fi (vision.espcam_url). Servo PWM on GPIO13; I2C (SDA=14, SCL=15) shared by OLED 0x3c, AS5600 0x36, INA219 0x40.",
+    "mcu_port": "COM3",
+    "mcu_baud": 115200,
+    "sensors": { "oled_addr": "0x3c", "as5600_addr": "0x36", "ina219_addr": "0x40" }
   }
 }

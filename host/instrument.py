@@ -55,6 +55,12 @@ class SerialInstrument(Instrument):
         self._ser.write((cmd + "\n").encode("ascii"))
         self._ser.flush()
 
+    def send_line(self, s: str) -> None:
+        """Write a raw line (used by SharedSerialHmi to push the OLED frame over
+        this same link on the single-board ESP32-CAM)."""
+        self._ser.write((s + "\n").encode("ascii"))
+        self._ser.flush()
+
     def _readline(self) -> str:
         return self._ser.readline().decode("ascii", "replace").strip()
 
@@ -150,7 +156,7 @@ class SimInstrument(Instrument):
         self.rng = np.random.default_rng(seed)
 
     def identify(self) -> protocol.IdInfo:
-        return protocol.IdInfo(name="SERVOTEST-UNO-SIM", version="2.0")
+        return protocol.IdInfo(name="SERVOTEST-CAM-SIM", version="2.0")
 
     def run(self) -> MeasResult:
         raw = build_meas(self.cfg, self.scenario, self.rng)

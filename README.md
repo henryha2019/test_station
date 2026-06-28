@@ -7,21 +7,21 @@ a functional test **and** a visual inspection:
 PASS = functional(travel · current · speed · direction)  AND  vision(assembly / appearance defect)
 ```
 
-An Arduino Uno is the functional instrument — it commands the **MG996R** to
-min/center/max and measures the actual response (output angle via an AS5600
-encoder, supply current via an INA219, sweep timing). An ESP32-CAM provides the
-image, a small INT8 CNN classifies visual defects, and a Python host orchestrates
-the cycle, **owns the verdict**, and logs every unit by serial number. A separate
-ESP32 + display is the station HMI.
+**One AI-Thinker ESP32-CAM does everything on the bench**: it commands the
+**MG996R** to min/center/max and measures the actual response (output angle via an
+AS5600 encoder, supply current via an INA219, sweep timing), serves the camera
+frame over Wi-Fi, and drives the SSD1306 OLED station HMI. A Python host fetches
+the frame, runs a small INT8 CNN for visual defects, **owns the verdict**, and
+logs every unit by serial number.
 
 **Design philosophy: reliability through subtraction.** Instruments measure; the
-host decides. The servo's own 3-pin plug mates a header in the fixture — no pogo
-pins needed for this DUT.
+host decides. One board (was three), and the servo's own 3-pin plug mates a header
+in the fixture — no pogo pins for this DUT.
 
-> **Runs today with no hardware.** A simulation backend speaks the real Uno wire
+> **Runs today with no hardware.** A simulation backend speaks the board's wire
 > protocol and a synthetic-image path drives the vision pipeline, so the whole
 > station — verdict logic, traceability, metrics, repeatability — is demoable on
-> any machine. Attach the Uno + sensors + ESP32-CAM and the same code drives real
+> any machine. Attach the ESP32-CAM + sensors and the same code drives real
 > silicon.
 
 ---
@@ -31,27 +31,25 @@ pins needed for this DUT.
 ```
         ┌──────────────────────── HOST PC (Python) ────────────────────────┐
         │ orchestrator · limits/config · CNN inference · AND-verdict · CSV  │
-        └──────┬───────────────────────┬───────────────────────┬───────────┘
-               │ USB serial            │ Wi-Fi (JPEG)          │ USB serial
-        ┌──────▼──────┐         ┌───────▼───────┐        ┌──────▼───────┐
-        │ ARDUINO UNO │         │  ESP32-CAM    │        │ ESP32 + OLED │
-        │ servo func. │         │  /capture     │        │ station HMI  │
-        │ + AS5600    │         │  (v2.1: INT8) │        │              │
-        │ + INA219    │         └───────────────┘        └──────────────┘
-        └──────┬──────┘
-               │ D9 PWM · I²C sensors · ext 5–6V
-        ┌──────▼─────────────────────────────────┐
-        │ FIXTURE: servo nest · clamp · MG996R    │
-        │  + horn→magnet coupler over AS5600      │
-        │  + camera mount + diffuser shroud       │
-        └─────────────────────────────────────────┘
+        └───────────────┬─────────────────────────────┬────────────────────┘
+                        │ USB serial (func + HMI)      │ Wi-Fi (JPEG /capture)
+                ┌───────▼──────────────────────────────▼───────┐
+                │            ESP32-CAM  (one board)             │
+                │  servo PWM · AS5600 · INA219 · OLED · camera  │
+                └───────────────────────┬───────────────────────┘
+                  GPIO13 PWM · I²C 14/15 │ · ext 5–6V (servo)
+                ┌───────────────────────▼───────────────────────┐
+                │ FIXTURE: servo nest · clamp · MG996R           │
+                │  + horn→magnet coupler over AS5600             │
+                │  + camera mount + diffuser shroud + OLED       │
+                └────────────────────────────────────────────────┘
 ```
 
 **Two decisions, locked:**
 1. **CNN runs on the host** (v2.0) for fast iteration and a bigger model budget.
-   On-device ESP32-CAM inference is the Phase 9 stretch.
-2. **The host owns the verdict.** The Uno reports raw readings; the CAM provides
-   an image; the host limit-checks the readings, ANDs the two results, and logs.
+   On-device inference is the Phase 9 stretch (and wants an ESP32-S3).
+2. **The host owns the verdict.** The board reports raw readings and an image; the
+   host limit-checks the readings, runs the CNN, ANDs the two results, and logs.
    Classic ATE.
 
 See **[docs/HARDWARE.md](docs/HARDWARE.md)** for the BOM, wiring, and fixturing.
@@ -94,22 +92,22 @@ Vision classes: `OK`, `horn_missing`, `case_defect`, `foreign_object`.
 
 ## Bring-up on real hardware
 
-1. Wire it up per [docs/HARDWARE.md](docs/HARDWARE.md) (servo→D9, AS5600+INA219 on
-   I²C, servo power on a separate 5–6 V supply, common ground).
-2. Flash `firmware/servo_tester_uno/` to the Uno (needs `Adafruit_INA219`).
-3. Flash `firmware/esp32_hmi/` to the HMI ESP32; flash stock `CameraWebServer`
-   to the ESP32-CAM.
-4. Edit `config/mg996r.json` → `station.uno_port`, `vision.espcam_url`, and the
+1. Wire it up per [docs/HARDWARE.md](docs/HARDWARE.md) (servo→GPIO13, AS5600+INA219
+   +OLED on I²C 14/15, **leave microSD unused**, servo power on a separate 5–6 V
+   supply, common ground).
+2. Flash `firmware/servo_tester_cam/` to the ESP32-CAM (needs `Adafruit_INA219`,
+   `Adafruit_SSD1306`). It runs functional + camera + HMI on the one board.
+3. Edit `config/mg996r.json` → `station.mcu_port`, `vision.espcam_url`, and the
    functional limit windows (tune to your golden-sample population).
-5. Capture a dataset, then train + quantize:
+4. Capture a dataset, then train + quantize:
    ```bash
    pip install -r requirements-vision.txt
    python -m vision.capture --class OK --count 200     # repeat per class
    python -m vision.dataset && python -m vision.train && python -m vision.quantize
    ```
-6. Run the live station:
+5. Run the live station (one port; the OLED is driven over that same link):
    ```bash
-   python -m host.app --port COM3 --hmi-port COM5 --ui
+   python -m host.app --port COM3 --ui
    ```
 
 ---
@@ -136,7 +134,7 @@ The recall-vs-false-reject curve and confusion matrix land in `out/`. See
 
 ```
 config/mg996r.json      DUT recipe: PWM profile, functional limit windows, vision op-point
-firmware/               Uno servo-test instrument · ESP32 HMI sketch
+firmware/servo_tester_cam   one ESP32-CAM: functional test + camera + OLED HMI
 host/                   orchestrator, instrument, functional, camera, inspection, decision, csv, ui
 vision/                 synthimg · capture · make_synthetic · dataset · train · evaluate · quantize
 analysis/               metrics (FPY/Pareto/cycle time) · repeatability (Gage R&R)
@@ -148,15 +146,15 @@ tests/                  28 pytest unit tests (run with no hardware)
 
 | Phase | Scope | State |
 |---|---|---|
-| 1 Functional MVP | Uno commands servo + measures + serial protocol | ✅ firmware + sim |
+| 1 Functional MVP | ESP32-CAM commands servo + measures + serial protocol | ✅ firmware + sim |
 | 2 Host + traceability | orchestrator, config, CSV, Tkinter UI | ✅ |
 | 3 Fixture + shroud | servo nest, poka-yoke, AS5600 coupler, shroud | ⬜ mechanical (CAD) |
 | 4 Dataset | capture + labeled tree + split | ✅ tooling (+ synthetic) |
 | 5 Train + evaluate | small CNN, confusion matrix, op-point | ✅ eval; train needs TF + data |
 | 6 Quantize + AND | INT8 + live dual-criteria verdict | ✅ AND live; quant needs TF |
-| 7 HMI display | ESP32 + OLED station indicator | ✅ firmware + host push |
+| 7 HMI display | OLED on the single board (no separate node) | ✅ firmware + host push |
 | 8 Metrics | FPY, Pareto, cycle time, Gage R&R | ✅ |
-| 9 Edge inference | on-device ESP32-CAM INT8 | ⬜ stretch |
+| 9 Edge inference | on-device INT8 (needs ESP32-S3) | ⬜ stretch |
 | 10 Writeup | one-pager + GIF | ✅ docs/WRITEUP.md (GIF TODO) |
 
 ## How each discipline reads it
@@ -166,5 +164,5 @@ tests/                  28 pytest unit tests (run with no hardware)
 | **Test Eng** | Dual-criteria EOL test; parametric limits, coverage, FPY, Gage-R&R repeatability |
 | **Mechanical** | Servo nest 3-2-1 + poka-yoke, coaxial AS5600 coupling, vision lighting enclosure |
 | **Manufacturing** | EOL inspection station, serial traceability, yield + Pareto, cycle time |
-| **Firmware** | Servo command/measure state machine + serial protocol, I²C sensors, ESP32 HMI |
+| **Firmware** | Single-board ESP32-CAM: servo command/measure state machine, serial protocol, I²C sensors, camera server, OLED HMI |
 | **Data / ML** | Self-built dataset, quantized CNN, recall-optimized operating point, edge latency |

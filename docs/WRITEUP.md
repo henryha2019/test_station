@@ -5,15 +5,16 @@ a functional test and a visual inspection.** Instruments measure; one host
 decides and logs every unit by serial number.
 
 ## Architecture
-- **Arduino Uno** — functional instrument. Commands the servo to min/center/max
-  and reports raw readings: actual output angle (AS5600 magnetic encoder), supply
-  current (INA219), and sweep timing. No pass/fail logic on the device.
-- **ESP32-CAM** — captures the servo through a diffuser shroud (flat, constant
-  lighting). Streams JPEG in v2.0; runs the model on-device in the Phase 9 stretch.
+- **ESP32-CAM (one board)** — does everything on the bench: commands the servo to
+  min/center/max and reports raw readings (actual output angle via AS5600, supply
+  current via INA219, sweep timing); serves the camera frame over Wi-Fi
+  (`/capture`); and drives the SSD1306 OLED station HMI. Servo PWM on GPIO13; one
+  I²C bus (GPIO14/15) shared by OLED + AS5600 + INA219. No pass/fail logic on the
+  device. Consolidated from three boards (Uno + ESP32-CAM + ESP32-HMI) to one.
 - **Host (Python)** — loads the recipe (`config/mg996r.json`), limit-checks each
-  reading, runs the INT8 CNN on the frame, ANDs the two verdicts, logs a CSV row,
-  and pushes a status frame to the HMI.
-- **ESP32 + OLED** — station HMI showing serial, functional, vision, verdict, FPY.
+  reading, fetches the frame and runs the INT8 CNN, ANDs the two verdicts, logs a
+  CSV row, and pushes the verdict back to the OLED over the same serial link.
+- On-device inference is the Phase 9 stretch (and wants an ESP32-S3).
 
 ## Test coverage & the dual-criteria rationale
 The functional test catches a servo that **won't travel its range, stalls
