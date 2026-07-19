@@ -5,9 +5,8 @@ Drops the portfolio artifacts into out/:
   2. yield / Pareto / cycle-time analysis
   3. Gage-R&R repeatability
 
-(The visual-inspection pipeline is a separate project, parked under vision/.
-Run it on its own: python -m vision.make_synthetic && python -m vision.dataset
-&& python -m vision.evaluate.)
+(Visual inspection was split into a separate AOI project — see
+docs/AOI_CONVEYOR_PLAN.md.)
 
     python scripts/run_demo.py
 """

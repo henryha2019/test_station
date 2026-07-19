@@ -9,7 +9,6 @@ def test_load_default():
     cfg = load_config(DEFAULT_CONFIG)
     assert cfg.dut_id == "MG996R"
     assert "range_deg" in cfg.limits
-    assert cfg.vision.pass_class == "OK"
     assert cfg.pwm_us["min"] < cfg.pwm_us["center"] < cfg.pwm_us["max"]
 
 
@@ -32,9 +31,9 @@ def test_validate_rejects_bad_pwm(tmp_path):
         load_config(f)
 
 
-def test_validate_rejects_bad_pass_class(tmp_path):
+def test_validate_rejects_empty_limits(tmp_path):
     data = json.loads(DEFAULT_CONFIG.read_text())
-    data["vision"]["pass_class"] = "NOPE"
+    data["functional"]["limits"] = {}
     f = tmp_path / "bad.json"
     f.write_text(json.dumps(data))
     with pytest.raises(ValueError):

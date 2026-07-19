@@ -7,9 +7,6 @@ venv/
 .pytest_cache/
 
 # Data / artifacts (regenerable)
-vision/data/
-vision/models/
-vision/manifest*.csv
 logs/
 out/
 *.png

@@ -4,8 +4,8 @@ Per cycle: command the functional test (the board drives the servo and reports
 readings), limit-check them, log a traceable row, and push the result to the HMI.
 The orchestrator is the only component that decides PASS/FAIL.
 
-Single-criterion (functional only). The visual-inspection pipeline lives under
-`vision/` and is not wired into the live station.
+Single-criterion (functional only). Visual inspection was split into a separate
+AOI project and is not part of this station.
 """
 from __future__ import annotations
 

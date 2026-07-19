@@ -1,8 +1,8 @@
 """The station verdict.
 
 This tester is single-criterion: PASS = the servo's functional response is within
-spec. (Visual inspection has been split out into its own project; the vision
-pipeline is parked under `vision/`.) The host owns this decision.
+spec. (Visual inspection was split out into its own AOI project.) The host owns
+this decision.
 """
 from __future__ import annotations
 

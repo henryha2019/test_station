@@ -7,8 +7,10 @@ logged per part. This is where the **Data/ML + in-line manufacturing** story
 lives, split out of the servo tester so each project stays focused.
 
 **Design philosophy (shared):** reliability through subtraction, and the host
-owns the verdict. **Reuse first** — the whole vision pipeline already exists in
-this repo's `vision/` and moves over almost unchanged.
+owns the verdict. **Reuse first** — a complete vision pipeline was already built
+for this project and lives in the tester repo's **git history** (commit
+`cf00828`, in `vision/`, before it was removed from the working tree). Recover it
+into the new project with `git checkout cf00828 -- vision/`.
 
 **Nice closed loop with project #1:** the reject actuator is an **MG996R** — a
 servo you validated on the functional tester now does a real job here.
@@ -31,7 +33,7 @@ servo you validated on the functional tester now does a real job here.
 Instruments (camera, trigger, belt, reject servo) act; the host decides. A frame
 is captured **on trigger** (deterministic framing), not streamed continuously.
 
-## What it reuses from `test_station/vision/`
+## What it reuses (recover from the tester repo, commit `cf00828`, `vision/`)
 Move these over as the seed — they need no rewrite:
 - `synthimg.py` — synthetic parts + feature baseline (re-theme classes to your prints)
 - `dataset.py` · `make_synthetic.py` · `capture.py` — labeled tree + stratified split
@@ -39,7 +41,8 @@ Move these over as the seed — they need no rewrite:
 - `evaluate.py` — confusion matrix + recall-optimized operating point
 - `inspection.py` · `camera.py` — runtime inference + capture backends
 - `analysis/` — FPY, Pareto, cycle time, Gage R&R (transfer as-is)
-Take `config/mg996r.json`'s `vision` block and `requirements-vision.txt` too.
+The old `config` `vision` block and `requirements-vision.txt` are in that same
+commit — recover them the same way.
 
 ## BOM (keep the belt genuinely simple)
 | Part | Qty | Why |

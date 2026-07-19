@@ -4,8 +4,8 @@
 functional response is within spec.** Instruments measure; one host decides and
 logs every unit by serial number.
 
-*(Single-criterion. Visual inspection was split into a separate conveyor-AOI
-project; its pipeline is parked under `vision/` — see docs/AOI_CONVEYOR_PLAN.md.)*
+*(Single-criterion. Visual inspection is being split into a separate
+conveyor-AOI project — see docs/AOI_CONVEYOR_PLAN.md.)*
 
 ## Architecture
 - **ESP32-CAM (used as a plain MCU)** — commands the servo to min/center/max and
@@ -42,8 +42,8 @@ robust to reading noise. One known-bad servo (stalled), 30 runs: **30/30 caught,
 
 ## Reproduce
 `python scripts/run_demo.py` regenerates every artifact above with no hardware.
-`pytest -q` runs 28 unit tests covering the protocol, recipe/limits, functional
-verdict, traceability, and the simulated station.
+`pytest -q` covers the protocol, recipe/limits, functional verdict,
+traceability, and the simulated station.
 
 ## TODO for the demo GIF (Phase 10)
 Record: a good servo → green; a stalled / dead / reversed servo → red naming the

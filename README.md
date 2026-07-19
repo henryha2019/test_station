@@ -18,10 +18,9 @@ host decides. The servo's own 3-pin plug mates a header in the fixture — no po
 pins for this DUT.
 
 > **Visual inspection has been split into its own project.** This tester is
-> single-criterion (functional). The vision pipeline (dataset → CNN → operating
-> point) is parked, self-contained, under [`vision/`](vision/) and will move into
-> a dedicated **conveyor AOI** project — see
-> [docs/AOI_CONVEYOR_PLAN.md](docs/AOI_CONVEYOR_PLAN.md).
+> single-criterion (functional). The visual-inspection pipeline (dataset → CNN →
+> operating point) is being spun out into a dedicated **conveyor AOI** project —
+> see [docs/AOI_CONVEYOR_PLAN.md](docs/AOI_CONVEYOR_PLAN.md).
 
 > **Runs today with no hardware.** A simulation backend speaks the board's wire
 > protocol, so the whole station — limit-checking, traceability, metrics,
@@ -123,8 +122,7 @@ firmware/servo_tester_cam   ESP32-CAM: commands servo, reads sensors, drives OLE
 host/                   orchestrator · instrument · functional · decision · csv · ui
 analysis/               metrics (FPY/Pareto/cycle time) · repeatability (Gage R&R)
 scripts/run_demo.py     one-command end-to-end simulated demo
-tests/                  28 pytest unit tests (run with no hardware)
-vision/                 PARKED — standalone vision pipeline for the AOI project
+tests/                  pytest unit tests (run with no hardware)
 ```
 
 ## Phase status
@@ -136,7 +134,7 @@ vision/                 PARKED — standalone vision pipeline for the AOI projec
 | 3 Fixture | servo nest, poka-yoke, coaxial AS5600 coupler | ⬜ mechanical (CAD) |
 | 8 Metrics | FPY, Pareto, cycle time, Gage R&R | ✅ |
 | 10 Writeup | one-pager + GIF | ✅ docs/WRITEUP.md (GIF TODO) |
-| — Vision | dataset · CNN · operating point | ➡ moved to the AOI project (`vision/` parked) |
+| — Vision | dataset · CNN · operating point | ➡ split into a separate AOI project ([plan](docs/AOI_CONVEYOR_PLAN.md)) |
 
 ## How each discipline reads it
 
@@ -146,4 +144,4 @@ vision/                 PARKED — standalone vision pipeline for the AOI projec
 | **Mechanical** | Servo nest 3-2-1 + poka-yoke, coaxial AS5600 magnet coupling |
 | **Manufacturing** | EOL station, serial traceability, yield + Pareto by parameter, cycle time |
 | **Firmware / Embedded** | Servo PWM + I²C sensors, test state machine + serial protocol, OLED HMI |
-| **Data / ML** | → the **conveyor AOI** project (this repo's `vision/` is its seed) |
+| **Data / ML** | → the **conveyor AOI** project ([plan](docs/AOI_CONVEYOR_PLAN.md)) |

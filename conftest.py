@@ -1,4 +1,4 @@
-"""Put the repo root on sys.path so `import host` / `import vision` work in tests."""
+"""Put the repo root on sys.path so `import host` works in tests."""
 import sys
 from pathlib import Path
 

@@ -1,7 +1,7 @@
 {
   "dut_id": "MG996R",
-  "description": "MG996R metal-gear servo — functional (commanded move + measured response) AND visual EOL test.",
-  "firmware": "SERVOTEST-UNO 2.0",
+  "description": "MG996R metal-gear servo — parametric functional EOL test (commanded move + measured response).",
+  "firmware": "SERVOTEST-CAM 2.0",
 
   "functional": {
     "pwm_us": { "min": 1000, "center": 1500, "max": 2000, "freq_hz": 50 },
@@ -18,21 +18,8 @@
     }
   },
 
-  "vision": {
-    "classes": ["OK", "horn_missing", "case_defect", "foreign_object"],
-    "pass_class": "OK",
-    "image_size": [96, 96],
-    "model_path": "vision/models/servovision_int8.tflite",
-    "operating_point": {
-      "comment": "Defect-recall priority: only PASS vision when P(OK) is high. Raising ok_threshold trades false-rejects (retest) for fewer escapes (missed defects).",
-      "defect_recall_target": 0.98,
-      "ok_threshold": 0.62
-    },
-    "espcam_url": "http://pogotest-cam.local/capture"
-  },
-
   "station": {
-    "comment": "Single-board ESP32-CAM: functional + HMI over USB serial (mcu_port); camera over Wi-Fi (vision.espcam_url). Servo PWM on GPIO13; I2C (SDA=14, SCL=15) shared by OLED 0x3c, AS5600 0x36, INA219 0x40.",
+    "comment": "Single-board ESP32-CAM (as MCU): functional + HMI over one USB serial (mcu_port). Servo PWM on GPIO13; I2C (SDA=14, SCL=15) shared by OLED 0x3c, AS5600 0x36, INA219 0x40.",
     "mcu_port": "COM3",
     "mcu_baud": 115200,
     "sensors": { "oled_addr": "0x3c", "as5600_addr": "0x36", "ina219_addr": "0x40" }
