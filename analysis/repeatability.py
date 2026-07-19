@@ -1,9 +1,9 @@
 """Gage-R&R-style repeatability: prove the TESTER isn't the source of variation.
 
-Run one known-good unit many times: the verdict must be identical every time.
-Report the spread of the analog-ish readings (vision confidence, latency) so you
-can show the decision is stable even though the raw readings jitter. Optionally
-run a known-bad unit to confirm zero escapes.
+Run one known-good servo many times: the verdict must be identical every time,
+while the raw analog reading (measured travel) jitters. Reporting that spread
+against the spec window shows the decision is robust to reading noise. Then run a
+known-bad servo to confirm zero escapes.
 
     python -m analysis.repeatability --runs 30
 """
@@ -17,60 +17,55 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
-from host.camera import SimCamera
 from host.config import DEFAULT_CONFIG, load_config
-from host.inspection import make_inspector
 from host.instrument import SimInstrument
 from host.orchestrator import Station
 
 
-def _run(cfg, scenario, dut_class, runs, seed):
-    station = Station(
-        cfg,
-        SimInstrument(cfg, scenario=scenario, seed=seed),
-        SimCamera(cfg, dut_class=dut_class, seed=seed),
-        make_inspector(cfg),
-    )
-    recs = [station.run_unit(f"RPT{i:03d}") for i in range(runs)]
-    return recs
+def _run(cfg, scenario, runs, seed):
+    station = Station(cfg, SimInstrument(cfg, scenario=scenario, seed=seed))
+    return [station.run_unit(f"RPT{i:03d}") for i in range(runs)]
 
 
 def analyze(cfg, runs=30, seed=123, out="out"):
     out = Path(out); out.mkdir(parents=True, exist_ok=True)
 
-    good = _run(cfg, "good", "OK", runs, seed)
+    good = _run(cfg, "good", runs, seed)
     verdicts = {r.final_result for r in good}
-    conf = np.array([r.vision_conf for r in good])
-    infer = np.array([r.infer_ms for r in good])
+    rng_deg = np.array([r.range_deg for r in good], dtype=float)
+    move = np.array([r.move_mA for r in good], dtype=float)
     stable = verdicts == {"PASS"}
 
-    # Use an unambiguously out-of-spec unit for the escape check (a gage study
-    # uses clearly good / clearly bad parts, not borderline ones).
-    bad_class = "horn_missing"
-    bad = _run(cfg, "good", bad_class, runs, seed + 1)
+    # Unambiguously out-of-spec servo for the escape check.
+    bad_scenario = "stalled"
+    bad = _run(cfg, bad_scenario, runs, seed + 1)
     escapes = sum(1 for r in bad if r.final_result == "PASS")
 
-    print(f"Repeatability — {runs} runs of one known-good unit")
+    lim = cfg.limits["range_deg"]
+    print(f"Repeatability — {runs} runs of one known-good servo")
     print(f"  verdict stability : {'PASS x%d (STABLE)' % runs if stable else 'UNSTABLE %s' % verdicts}")
-    print(f"  vision confidence : mean {conf.mean():.3f}  sd {conf.std():.4f}  "
-          f"min {conf.min():.3f}  max {conf.max():.3f}")
-    print(f"  inference latency : mean {infer.mean():.2f} ms  sd {infer.std():.2f} ms")
-    print(f"\nKnown-bad unit ({bad_class}) x{runs}: "
+    print(f"  range_deg reading : mean {rng_deg.mean():.2f}  sd {rng_deg.std():.3f}  "
+          f"min {rng_deg.min():.2f}  max {rng_deg.max():.2f}  (spec {lim.describe()})")
+    print(f"  move_mA reading   : mean {move.mean():.1f}  sd {move.std():.2f} mA")
+    print(f"\nKnown-bad servo ({bad_scenario}) x{runs}: "
           f"{runs - escapes}/{runs} caught, {escapes} escapes")
 
     fig, ax = plt.subplots(figsize=(6, 3.6))
-    ax.hist(conf, bins=12, color="#1b8a3a", alpha=0.85)
-    ax.axvline(cfg.vision.ok_threshold, color="#b3261e", ls="--",
-               label=f"ok_threshold {cfg.vision.ok_threshold:.2f}")
-    ax.set_xlabel("P(OK) on a known-good unit"); ax.set_ylabel("runs")
+    ax.hist(rng_deg, bins=12, color="#1b8a3a", alpha=0.85)
+    for b in (lim.min, lim.max):
+        if b is not None:
+            ax.axvline(b, color="#b3261e", ls="--", label=f"spec {lim.describe()}")
+    ax.set_xlabel("measured range_deg on a known-good servo"); ax.set_ylabel("runs")
     ax.set_title(f"Reading spread (verdict {runs}x stable={stable})")
-    ax.legend(fontsize=8)
+    handles, labels = ax.get_legend_handles_labels()
+    if labels:
+        ax.legend(handles[:1], labels[:1], fontsize=8)
     fig.tight_layout(); fig.savefig(out / "repeatability.png", dpi=120); plt.close(fig)
     print(f"Artifact: {out}/repeatability.png")
 
     return {"runs": runs, "verdict_stable": bool(stable),
-            "conf_mean": float(conf.mean()), "conf_sd": float(conf.std()),
-            "infer_mean_ms": float(infer.mean()), "escapes": int(escapes)}
+            "range_mean": float(rng_deg.mean()), "range_sd": float(rng_deg.std()),
+            "escapes": int(escapes)}
 
 
 def main(argv=None) -> int:

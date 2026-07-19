@@ -1,18 +1,16 @@
 """Station HMI push. Sends one compact status frame per unit to the display.
 
-Frame: HMI,<serial>,<func>,<vision>,<class>,<final>,<fpy_pct>
+Frame: HMI,<serial>,<func>,<final>,<fpy_pct>
 On the single-board ESP32-CAM the OLED hangs off the same MCU, so the frame goes
 out over the *instrument's* serial link (SharedSerialHmi) — no second port.
 """
 from __future__ import annotations
 
 
-def format_frame(serial: str, func: bool, vision: bool, cls: str, final: bool, fpy_pct: float) -> str:
-    return "HMI,{},{},{},{},{},{:.1f}".format(
+def format_frame(serial: str, func: bool, final: bool, fpy_pct: float) -> str:
+    return "HMI,{},{},{},{:.1f}".format(
         serial,
         "PASS" if func else "FAIL",
-        "PASS" if vision else "FAIL",
-        cls,
         "PASS" if final else "FAIL",
         fpy_pct,
     )

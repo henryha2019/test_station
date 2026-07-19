@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from .config import DutConfig
+from host.config import DutConfig
 
 
 class Camera:

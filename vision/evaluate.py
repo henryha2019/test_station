@@ -34,7 +34,7 @@ def _load_img(path, size):
 
 def _predictor(cfg, model_path):
     if model_path and Path(model_path).exists():
-        from host.inspection import TFLiteVision
+        from vision.inspection import TFLiteVision
         insp = TFLiteVision(cfg)
         return insp.predict, "tflite-int8"
     return (lambda im: classify_features(im, cfg.vision.classes, cfg.vision.pass_class)), "baseline"

@@ -174,10 +174,10 @@ void runTest() {
 // OLED HMI — render a status frame pushed by the host
 // =========================================================================
 void renderHMI(const String& msg) {
-  // HMI,serial,func,vision,class,final,fpy
-  String f[6];
+  // HMI,serial,func,final,fpy
+  String f[4];
   int idx = 0, start = 4;
-  for (int i = 4; i <= (int)msg.length() && idx < 6; i++) {
+  for (int i = 4; i <= (int)msg.length() && idx < 4; i++) {
     if (i == (int)msg.length() || msg.charAt(i) == ',') {
       f[idx++] = msg.substring(start, i); start = i + 1;
     }
@@ -185,12 +185,10 @@ void renderHMI(const String& msg) {
   oled.clearDisplay();
   oled.setTextSize(1);
   oled.setCursor(0, 0);  oled.print("SN "); oled.print(f[0]);
-  oled.setCursor(86, 0); oled.print("FPY"); oled.print(f[5]);
-  oled.setCursor(0, 14); oled.print("FUNC "); oled.print(f[1]);
-  oled.setCursor(0, 24); oled.print("VIS  "); oled.print(f[2]);
-  oled.setCursor(0, 34); oled.print(f[3]);
+  oled.setCursor(86, 0); oled.print("FPY"); oled.print(f[3]);
+  oled.setCursor(0, 18); oled.print("FUNC "); oled.print(f[1]);
   oled.setTextSize(2);
-  oled.setCursor(0, 48); oled.print(f[4]);
+  oled.setCursor(0, 44); oled.print(f[2]);
   oled.display();
 }
 

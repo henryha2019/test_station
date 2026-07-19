@@ -13,7 +13,7 @@ FIELDS = [
     "timestamp",
     "serial",
     "final_result",       # PASS / FAIL
-    "fail_reason",        # -, FUNCTIONAL, VISION, FUNCTIONAL+VISION
+    "fail_reason",        # - or FUNCTIONAL
     "functional_result",  # PASS / FAIL
     "fail_param",         # failing measurement name or -
     "range_deg",          # measured travel
@@ -23,12 +23,7 @@ FIELDS = [
     "speed_dps",          # travel speed
     "direction",          # increasing / decreasing
     "test_ms",            # functional test time
-    "vision_result",      # PASS / FAIL
-    "vision_class",       # predicted class
-    "vision_conf",        # P(predicted class)
-    "infer_ms",           # inference latency
     "cycle_ms",           # total host cycle time
-    "vision_backend",     # baseline / tflite-int8
 ]
 
 

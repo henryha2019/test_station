@@ -1,34 +1,23 @@
-"""The dual-criteria verdict: PASS = functional AND vision.
+"""The station verdict.
 
-This is the whole point of v2.0 — the functional test catches a servo that won't
-travel, stalls, draws bad current, or runs backwards; vision catches assembly /
-appearance defects (missing horn, cracked case, foreign object). A unit ships
-only if both agree. The log records WHICH criterion failed so the Pareto is real.
+This tester is single-criterion: PASS = the servo's functional response is within
+spec. (Visual inspection has been split out into its own project; the vision
+pipeline is parked under `vision/`.) The host owns this decision.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
 
 from .functional import FunctionalResult
-from .inspection import VisionResult
 
 
 @dataclass
 class Verdict:
     final_pass: bool
     functional_pass: bool
-    vision_pass: bool
-    reason: str          # "-", "FUNCTIONAL", "VISION", or "FUNCTIONAL+VISION"
+    reason: str          # "-" or "FUNCTIONAL"
 
 
-def decide(functional: FunctionalResult, vision: VisionResult) -> Verdict:
-    f, v = functional.passed, vision.passed
-    if f and v:
-        reason = "-"
-    elif not f and not v:
-        reason = "FUNCTIONAL+VISION"
-    elif not f:
-        reason = "FUNCTIONAL"
-    else:
-        reason = "VISION"
-    return Verdict(final_pass=f and v, functional_pass=f, vision_pass=v, reason=reason)
+def decide(functional: FunctionalResult) -> Verdict:
+    f = functional.passed
+    return Verdict(final_pass=f, functional_pass=f, reason="-" if f else "FUNCTIONAL")

@@ -17,7 +17,7 @@ from pathlib import Path
 
 import numpy as np
 
-from .config import DutConfig
+from host.config import DutConfig
 
 
 @dataclass

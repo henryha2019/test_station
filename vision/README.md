@@ -1,7 +1,15 @@
-# Vision pipeline
+# Vision pipeline  ·  PARKED (to become its own project)
 
-A small INT8 CNN classifies the servo into one taxonomy class; the host turns
-that into a vision pass/fail at a recall-optimized operating point.
+> This pipeline is **no longer wired into the servo tester** (that station is
+> single-criterion / functional). It is self-contained and destined to move into
+> a dedicated **conveyor AOI** project — see
+> [../docs/AOI_CONVEYOR_PLAN.md](../docs/AOI_CONVEYOR_PLAN.md). It still runs
+> standalone here: `python -m vision.make_synthetic && python -m vision.dataset
+> && python -m vision.evaluate`. When you extract it, take `config/mg996r.json`'s
+> `vision` block and `requirements-vision.txt` with it.
+
+A small INT8 CNN classifies a part into one taxonomy class; a recall-optimized
+operating point turns that into a pass/fail.
 
 Taxonomy (`config/mg996r.json → vision.classes`): `OK`, `horn_missing`,
 `case_defect`, `foreign_object`. `OK` is the only pass class.

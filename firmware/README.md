@@ -1,14 +1,16 @@
 # Firmware
 
-**One board does it all** (except the CNN, which runs on the host). The sketch
-never owns the verdict — the host does.
+**One board, functional test + HMI.** The sketch never owns the verdict — the
+host does.
 
 | Sketch | Board | Role |
 |---|---|---|
-| `servo_tester_cam/` | AI-Thinker **ESP32-CAM** | Functional instrument **+** camera **+** HMI. Commands the MG996R, streams raw readings (AS5600 angle, INA219 current, sweep timing), serves the camera frame over Wi-Fi (`GET /capture`) for the host CNN, and renders the verdict on an SSD1306 OLED. |
+| `servo_tester_cam/` | AI-Thinker **ESP32-CAM** (as MCU) | Functional instrument **+** HMI. Commands the MG996R and streams raw readings (AS5600 angle, INA219 current, sweep timing), and renders the verdict on an SSD1306 OLED. |
 
-The host fetches `/capture` and runs the INT8 CNN; on-device inference is the
-Phase 9 stretch (and wants an ESP32-S3, not this board).
+This tester is single-criterion (functional). The board also still contains a
+camera `/capture` server (Wi-Fi), now **unused by the host** — it's kept as the
+starting point for the split-out **conveyor AOI** project (docs/AOI_CONVEYOR_PLAN.md);
+trim it if you repurpose this as a pure functional MCU.
 
 ## Pin map (microSD must stay unused to free 13/14/15)
 
@@ -30,7 +32,7 @@ I²C bus is moved to 14/15.
 | `ID?` | `ID,SERVOTEST-CAM,2.0` |
 | `PING` | `PONG` |
 | `RUN` | `MEAS,<key>,<value>` ×N, then `DONE,<elapsed_ms>` |
-| `HMI,<serial>,<func>,<vision>,<class>,<final>,<fpy>` | *(renders OLED)* |
+| `HMI,<serial>,<func>,<final>,<fpy>` | *(renders OLED)* |
 | *(unknown)* | `ERR,unknown_cmd` |
 
 Functional + HMI share this one serial link (`SharedSerialHmi` host-side); the

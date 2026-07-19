@@ -16,7 +16,7 @@ from pathlib import Path
 from PIL import Image
 
 from host.config import DEFAULT_CONFIG, load_config
-from host.camera import EspCamCamera
+from vision.camera import EspCamCamera
 from vision.synthimg import CLASSES
 
 

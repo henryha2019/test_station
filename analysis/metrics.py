@@ -29,13 +29,8 @@ def read_log(path) -> list[dict]:
 
 
 def failure_mode(row: dict) -> str:
-    reason = row["fail_reason"]
-    if reason == "FUNCTIONAL":
+    if row["fail_reason"] == "FUNCTIONAL":
         return f"FUNC:{row['fail_param']}"
-    if reason == "VISION":
-        return f"VIS:{row['vision_class']}"
-    if reason == "FUNCTIONAL+VISION":
-        return "FUNC+VIS"
     return "-"
 
 
