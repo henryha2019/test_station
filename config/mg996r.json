@@ -28,7 +28,7 @@
       "defect_recall_target": 0.98,
       "ok_threshold": 0.62
     },
-    "espcam_url": "http://192.168.4.1/capture"
+    "espcam_url": "http://pogotest-cam.local/capture"
   },
 
   "station": {

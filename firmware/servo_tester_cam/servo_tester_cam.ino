@@ -24,6 +24,7 @@
  * Serial protocol (115200 8N1, '\n'):
  *   ID?  -> ID,SERVOTEST-CAM,2.0
  *   PING -> PONG
+ *   IP?  -> IP,<addr>        (Wi-Fi address; see startWifi / mDNS below)
  *   RUN  -> MEAS,<key>,<val> ... DONE,<ms>
  *   HMI,<serial>,<func>,<vision>,<class>,<final>,<fpy>  -> renders the OLED
  *
@@ -33,6 +34,7 @@
 
 #include "esp_camera.h"
 #include <WiFi.h>
+#include <ESPmDNS.h>
 #include "esp_http_server.h"
 #include <Wire.h>
 #include <Adafruit_INA219.h>
@@ -67,8 +69,18 @@ const int      PWM_MAX    = 2000;
 const int      SETTLE_MS  = 600;
 const uint8_t  AS5600_ADDR = 0x36;
 
-const char* AP_SSID = "PogoTest-CAM";
-const char* AP_PASS = "pogotest123";   // host joins this AP; camera at 192.168.4.1
+// ---- Wi-Fi ----------------------------------------------------------------
+// Default STA: join your network so the host PC keeps its own internet. The
+// DHCP IP isn't fixed, so we also publish mDNS -> the host reaches the camera at
+//   http://pogotest-cam.local/capture
+// (send "IP?" over serial to read the raw DHCP address if mDNS isn't available).
+// Set WIFI_USE_SOFTAP to 1 to instead self-host an AP at 192.168.4.1.
+#define WIFI_USE_SOFTAP 0
+const char* STA_SSID  = "YOUR_WIFI";        // <-- edit
+const char* STA_PASS  = "YOUR_PASSWORD";    // <-- edit
+const char* MDNS_HOST = "pogotest-cam";     // -> pogotest-cam.local
+const char* AP_SSID   = "PogoTest-CAM";
+const char* AP_PASS   = "pogotest123";
 
 Adafruit_INA219 ina219;
 Adafruit_SSD1306 oled(128, 64, &Wire, -1);
@@ -222,10 +234,32 @@ void startServer() {
   if (httpd_start(&cam_httpd, &cfg) == ESP_OK) httpd_register_uri_handler(cam_httpd, &uri);
 }
 
+String wifiIP() {
+#if WIFI_USE_SOFTAP
+  return WiFi.softAPIP().toString();
+#else
+  return WiFi.localIP().toString();
+#endif
+}
+
+void startWifi() {
+#if WIFI_USE_SOFTAP
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP(AP_SSID, AP_PASS);            // host joins this AP; image at 192.168.4.1
+#else
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(STA_SSID, STA_PASS);
+  for (int i = 0; i < 40 && WiFi.status() != WL_CONNECTED; i++) delay(250);  // ~10 s
+  if (MDNS.begin(MDNS_HOST)) MDNS.addService("http", "tcp", 80);  // pogotest-cam.local
+#endif
+  Serial.print("IP,"); Serial.println(wifiIP());
+}
+
 // =========================================================================
 void handle(const String& cmd) {
   if (cmd == "ID?")            Serial.println("ID,SERVOTEST-CAM,2.0");
   else if (cmd == "PING")      Serial.println("PONG");
+  else if (cmd == "IP?")       { Serial.print("IP,"); Serial.println(wifiIP()); }
   else if (cmd == "RUN")       runTest();
   else if (cmd.startsWith("HMI,")) renderHMI(cmd);
   else if (cmd.length())       Serial.println("ERR,unknown_cmd");
@@ -247,9 +281,9 @@ void setup() {
     oled.clearDisplay(); oled.setCursor(0, 0); oled.print("PogoTest CAM"); oled.display();
   }
 
-  // Camera + Wi-Fi AP + /capture server.
+  // Camera + Wi-Fi (STA + mDNS by default) + /capture server.
   startCamera();
-  WiFi.softAP(AP_SSID, AP_PASS);          // host joins this AP; image at 192.168.4.1/capture
+  startWifi();
   startServer();
 
   while (Serial.available()) Serial.read();

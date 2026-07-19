@@ -39,9 +39,11 @@ image comes over Wi-Fi. Reported keys: `idle_mA`, `angle_center`, `hold_mA`,
 `speed_dps`, `direction`. The host checks each against the limit windows in
 `config/mg996r.json` — the firmware knows no limits.
 
-Wi-Fi: the board brings up a SoftAP `PogoTest-CAM` (image at
-`http://192.168.4.1/capture`). The host joins that AP for images and uses USB for
-control. Switch to STA mode if you'd rather keep the host on your LAN.
+Wi-Fi (**default STA + mDNS**): the board joins your network and advertises
+itself, so the host fetches images at `http://pogotest-cam.local/capture` and
+keeps its own internet. Edit `STA_SSID` / `STA_PASS`. Send `IP?` to read the raw
+DHCP address if mDNS isn't available on your host. Set `WIFI_USE_SOFTAP 1` to
+self-host an AP at `192.168.4.1` instead (host then joins that AP).
 
 Libraries: esp32 core (`esp_camera`, `WiFi`, `esp_http_server`, `Wire`),
 `Adafruit_INA219`, `Adafruit_SSD1306`, `Adafruit_GFX`.
