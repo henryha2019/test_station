@@ -26,7 +26,7 @@
  *   PING -> PONG
  *   IP?  -> IP,<addr>        (Wi-Fi address; see startWifi / mDNS below)
  *   RUN  -> MEAS,<key>,<val> ... DONE,<ms>
- *   HMI,<serial>,<func>,<vision>,<class>,<final>,<fpy>  -> renders the OLED
+ *   HMI,<serial>,<func>,<final>,<fpy>  -> renders the OLED
  *
  * Libraries: esp32 core (esp_camera, WiFi, esp_http_server, Wire),
  *            Adafruit_INA219, Adafruit_SSD1306, Adafruit_GFX.

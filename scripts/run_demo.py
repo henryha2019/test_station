@@ -5,9 +5,6 @@ Drops the portfolio artifacts into out/:
   2. yield / Pareto / cycle-time analysis
   3. Gage-R&R repeatability
 
-(Visual inspection was split into a separate AOI project — see
-docs/AOI_CONVEYOR_PLAN.md.)
-
     python scripts/run_demo.py
 """
 from __future__ import annotations

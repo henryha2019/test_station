@@ -1,121 +1,139 @@
-# 硬件 · 接线 · 固定 (MG996R 伺服测试站 · 单板 ESP32-CAM)
+# Hardware · Wiring · Fixturing (MG996R Servo Test Station · Single-Board ESP32-CAM)
 
-被测件(DUT)= **MG996R 舵机**。判定 = **功能测试**(单判据)。
-**一块 AI-Thinker ESP32-CAM 干完**:舵机功能测试 + I²C 传感器(AS5600/INA219)+ OLED 显示。
-原则:**板子只测量/显示,主机做判定;所有节点共地**。
+DUT = **MG996R servo**. Verdict = **functional test** (single criterion).
+**One AI-Thinker ESP32-CAM does it all**: servo functional test + I2C sensors
+(AS5600 / INA219) + OLED display.
+Principle: **the board only measures/displays; the host makes the verdict; all
+nodes share a common ground.**
 
-> 接线总览图:**[wiring_mg996r.svg](wiring_mg996r.svg)**
+> Wiring overview: **[wiring_mg996r.svg](wiring_mg996r.svg)** · Detailed
+> schematic: **[servo_tester_schematic.svg](servo_tester_schematic.svg)**
 >
-> 注:本测试台已改为**纯功能**。**视觉部分(相机取流 / 扩散罩 / 照明)已拆到 AOI 项目**
-> (见 [AOI_CONVEYOR_PLAN.md](AOI_CONVEYOR_PLAN.md))。下面的舵机 / AS5600 / INA219 /
-> OLED / 供电接线仍然有效;ESP32-CAM 的相机与 `GET /capture` 现在**不使用**。
+> Note: this station is a **pure functional** test. The ESP32-CAM is used only
+> as an MCU (servo functional test + I2C sensors + OLED) — the on-board camera
+> and `GET /capture` are **not used**. A plain ESP32 works just as well.
 
 ---
 
-## 1. 需要哪些硬件 (BOM)
+## 1. Bill of materials (BOM)
 
-| 件 | 数量 | 作用 | 备注 |
+| Part | Qty | Purpose | Notes |
 |---|---|---|---|
-| **ESP32-CAM (AI-Thinker) + 烧录底座 MB** | 1 | 单板核心:发舵机 PWM、读传感器、驱 OLED、Wi-Fi 推图 | 你已有(ESP-32S/OV2640) |
-| **AS5600 磁编码器模块 + 径向充磁磁铁** | 1 | 测输出轴**实际角度**(I²C 0x36) | 同轴装在舵机轴上 |
-| **INA219 电流传感器模块** | 1 | 测舵机**电流**(I²C 0x40) | 高边测量 |
-| **SSD1306 OLED 128×64 (I²C)** | 1 | 工位 HMI 显示判定(I²C 0x3C) | 与传感器共用一条 I²C |
-| **5–6V 电源 ≥3A** | 1 | 给舵机供电 | MG996R 堵转 ~2.5A,**别用板子/USB 供电** |
-| 3 针母头排线 | 1 | 对插舵机插头(电源/地/信号) | 舵机自带标准 3 针公头 |
-| 白光 LED + 限流电阻 | 数颗 | 扩散罩照明,5V 常亮 | |
-| 杜邦线 / 接线端子 | 若干 | | |
-| 3D 打印件 | 一套 | 舵机巢 + 磁铁联轴器 + AS5600 座 + 相机/单板支架 + 扩散罩 | 见第 3 节 |
+| **ESP32-CAM (AI-Thinker) + programmer base** | 1 | Single-board core: drives servo PWM, reads sensors, drives OLED | You already have this (ESP-32S/OV2640) |
+| **AS5600 magnetic encoder module + diametric magnet** | 1 | Measures **actual output angle** (I2C 0x36) | Mounted coaxially on the servo shaft |
+| **INA219 current sensor module** | 1 | Measures servo **current** (I2C 0x40) | High-side measurement |
+| **SSD1306 OLED 128x64 (I2C)** | 1 | Station HMI, shows the verdict (I2C 0x3C) | Shares the I2C bus with the sensors |
+| **5-6V power supply >=3A** | 1 | Powers the servo | MG996R stall current is ~2.5A — **do not power it from the board/USB** |
+| 3-pin female header | 1 | Mates the servo's plug (power/ground/signal) | Servo ships with a standard 3-pin male plug |
+| White LEDs + current-limiting resistors | a few | Diffuser shroud lighting, 5V, always on | |
+| Jumper wires / terminal blocks | as needed | | |
+| 3D-printed parts | one set | Servo nest + magnet coupler + AS5600 mount + camera/board bracket + diffuser shroud | See section 3 |
 
-> **不需要的件(用减法砍掉)**:不再用 Arduino Uno、不再用单独的 HMI ESP32——这两件的活全
-> 并到 ESP32-CAM 上。舵机自带 3 针插头,**也不需要 pogo 探针**。
+> **Parts you don't need (cut by subtraction)**: no Arduino Uno, no separate HMI
+> ESP32 — both roles are consolidated onto the ESP32-CAM. The servo has its own
+> 3-pin plug, so **no pogo pins** are needed either.
 
 ---
 
-## 2. 怎么连接 (接线 · 单板)
+## 2. Wiring (single board)
 
-ESP32-CAM 是 **3.3V 逻辑**,所以整条 I²C 都是 3.3V —— AS5600/OLED 最稳,不用电平转换。
+The ESP32-CAM is **3.3V logic**, so the whole I2C bus runs at 3.3V — the AS5600
+and OLED are happiest this way, with no level shifting needed.
 
-### 2.1 引脚分配(关键:**不要插 microSD**,否则 13/14/15 被占)
+### 2.1 Pin assignment (important: **do not fit a microSD card**, or GPIO 13/14/15 are unavailable)
 
-| 功能 | ESP32-CAM 引脚 |
+| Function | ESP32-CAM pin |
 |---|---|
-| **舵机 PWM**(LEDC 50Hz) | **GPIO13** |
-| **I²C SDA**(OLED+AS5600+INA219) | **GPIO14** |
-| **I²C SCL** | **GPIO15** |
-| 串口(功能测试 + HMI 帧) | GPIO1/3 → 烧录底座 USB → 主机 |
-| 摄像头 + Wi-Fi | AI-Thinker 固定脚(别动) |
+| **Servo PWM** (LEDC 50Hz) | **GPIO13** |
+| **I2C SDA** (OLED + AS5600 + INA219) | **GPIO14** |
+| **I2C SCL** | **GPIO15** |
+| Serial (functional test + HMI frames) | GPIO1/3 -> programmer base USB -> host |
+| Camera + Wi-Fi | Fixed AI-Thinker pins (do not touch) |
 
-> ⚠️ 标准 OLED 例程用的 21/22 在 ESP32-CAM 上是**摄像头脚**,所以 I²C 必须挪到 **14/15**。
+> Note: the usual OLED pins 21/22 are the **camera pins** on the ESP32-CAM, so
+> I2C must move to **14/15**.
 
-### 2.2 I²C 总线(三件并在一条上,地址不冲突)
+### 2.2 I2C bus (three devices on one bus, addresses don't collide)
 
-| 模块 | VCC | GND | SDA | SCL | 地址 |
+| Module | VCC | GND | SDA | SCL | Address |
 |---|---|---|---|---|---|
 | SSD1306 OLED | 3V3 | GND | GPIO14 | GPIO15 | 0x3C |
 | AS5600 | 3V3 | GND | GPIO14 | GPIO15 | 0x36 |
 | INA219 | 3V3 | GND | GPIO14 | GPIO15 | 0x40 |
 
-(SDA/SCL 上各接一个 4.7k 上拉到 3V3;很多模块已自带。)
+(Put a 4.7k pull-up from SDA and from SCL to 3V3; many modules already include one.)
 
-### 2.3 舵机(电流走 INA219 高边)
+### 2.3 Servo (current measured through INA219, high side)
 
-舵机 3 根线:**信号(橙/黄)→ GPIO13**;**电源(红)→ 经 INA219 接 5–6V 正**;
-**地(棕/黑)→ 公共地**。
+The servo has 3 wires: **signal (orange/yellow) -> GPIO13**; **power
+(red) -> through INA219 to 5-6V positive**; **ground (brown/black) -> common
+ground**.
 
-| 电流路径 | 接法 |
+| Current path | Connection |
 |---|---|
-| 5–6V (+) | → INA219 `Vin+` |
-| INA219 `Vin-` | → 舵机电源线(红) |
-| 5–6V (−) | → 公共地 |
+| 5-6V (+) | -> INA219 `Vin+` |
+| INA219 `Vin-` | -> servo power wire (red) |
+| 5-6V (-) | -> common ground |
 
-### 2.4 供电与共地(关键)
+### 2.4 Power and common ground (critical)
 
 ```
-主机 USB ── 烧录底座 ── ESP32-CAM   (板子+摄像头+Wi-Fi 由 USB 5V 供)
+Host USB ── programmer base ── ESP32-CAM   (board + camera + Wi-Fi powered from USB 5V)
 
-独立 5–6V ─┬── 舵机 (经 INA219)
-(≥3A)      └── 照明 LED
+Separate 5-6V ─┬── servo (through INA219)
+(>=3A)         └── lighting LEDs
 
-★ 所有 GND 连在一起(板子、电源、INA219、AS5600、OLED、舵机)= common GND
-★ 舵机电源务必独立,别和板子/USB 共用,避免堵转电流拉垮摄像头/Wi-Fi
+* All GND nets tied together (board, supply, INA219, AS5600, OLED, servo) = common ground
+* The servo supply must be independent from the board/USB supply, so stall current
+  doesn't brown out the camera/Wi-Fi
 ```
 
-### 2.5 主机怎么同时拿到「测量」和「图像」
+### 2.5 How the host gets both measurements and HMI
 
-- **测量 + HMI**:USB 串口(`config → station.mcu_port`,115200)。功能结果走串口上来,
-  主机把 `HMI,...` 帧从**同一条串口**发回去驱动 OLED(`SharedSerialHmi`)。
-- **图像**:本功能测试台**不用**。ESP32-CAM 的相机与 Wi-Fi `/capture` 在纯功能测试里
-  闲置(视觉已拆到 AOI 项目)。固件仍带相机服务与 STA/mDNS,可留作 AOI 起点或直接删掉。
+- **Measurements + HMI**: USB serial (`config -> station.mcu_port`, 115200).
+  Functional results come up over serial; the host sends `HMI,...` frames back
+  down the **same serial link** to drive the OLED (`SharedSerialHmi`).
+- **Camera**: not used by this pure functional test. The ESP32-CAM's camera and
+  Wi-Fi `/capture` sit idle; the firmware still includes the camera service (it
+  can be stripped, or you can just use a plain ESP32 instead).
 
 ---
 
-## 3. 怎么固定 (夹具 / 安装)
+## 3. Fixturing (nest / mounting)
 
-视觉成功 80% 靠重复定位 + 受控照明;功能测试精度靠**轴与编码器同心**。
+Functional-test accuracy depends on **shaft-to-encoder concentricity**.
 
-1. **舵机巢 (3-2-1 定位 + 防呆)**:按 MG996R 外形(约 40.7×19.7×42.9mm)打印凹槽,贴住
-   底面 + 两侧 + 一端;加一个**非对称特征**(防呆),装反就放不进。一个**手动快夹
-   (toggle clamp)** 把舵机压紧(v2.0 手动最可靠)。
+1. **Servo nest (3-2-1 locating + poka-yoke)**: print a pocket matching the
+   MG996R's outline (approx. 40.7 x 19.7 x 42.9mm), seating against the
+   underside, two sides, and one end. Add an **asymmetric feature** (poka-yoke)
+   so the servo can't be seated backwards. A **manual toggle clamp** holds the
+   servo down (manual is the most reliable choice for v2.0).
 
-2. **角度测量同轴 (核心机械点)**:舵机输出轴(花键)上装打印**联轴器**,顶端粘**径向充磁磁铁**;
-   AS5600 板固定在轴正上/正下方的座里,磁铁中心对准芯片,**气隙 ~1–2mm**。舵机一转,
-   AS5600 直接读真实角度 → 测行程/转向/中位。
+2. **Coaxial angle measurement (the key mechanical detail)**: print a
+   **coupler** that mates the servo's output spline, with a **diametric
+   magnet** glued to its top face. Mount the AS5600 board directly above (or
+   below) the shaft, magnet centered on the chip, with an **air gap of
+   ~1-2mm**. As the servo rotates, the AS5600 reads the true output angle
+   directly, giving you travel, direction, and center offset.
 
-3. **接触 DUT**:夹具上固定一个 **3 针母座**,座好舵机后把舵机插头对插进去。无需探针。
+3. **DUT contact**: mount a **3-pin female header** on the fixture; once the
+   servo is seated, plug its lead into the header. No pogo pins required.
 
-4. **相机 + 扩散罩**:**ESP32-CAM 本体**固定在相机塔上、对准舵机、保持一致工作距离;扩散罩
-   把舵机和镜头罩住,几颗白光 LED 藏在扩散材料(白 PETG/硫酸纸/乒乓球塑料)后 → 平整恒定光。
-   **OLED** 装在前面板朝向操作员。
+4. **Board and OLED**: mount the ESP32 (or ESP32-CAM used as a plain MCU) and
+   the sensor wiring in an electronics tray next to the nest. The **OLED**
+   sits on the front panel, facing the operator.
 
-> 渲染图为按真实板型绘制的**示意图**,非实物照片。实物引脚以各模块数据手册为准
-> (AI-Thinker ESP32-CAM、AS5600、INA219、SSD1306、MG996R)。
+> The rendered diagrams are **illustrative**, drawn to match the real board
+> outlines — not photographs. For exact pinouts, refer to each module's
+> datasheet (AI-Thinker ESP32-CAM, AS5600, INA219, SSD1306, MG996R).
 
 ---
 
-## 4. 软件里对应的地方
+## 4. Where this maps into the software
 
-- 命令位置 / 限值窗口:`config/mg996r.json → functional`
-- 串口号 / I²C 地址:`config/mg996r.json → station`
-- 固件:`firmware/servo_tester_cam/`(单板:功能 + OLED HMI)
-- 先 `python -m host.app --simulate --ui` 跑通仿真,再插硬件用
-  `python -m host.app --port COM3 --ui`(功能 + HMI 走同一条串口)。
+- Command positions / limit windows: `config/mg996r.json -> functional`
+- Serial port / I2C addresses: `config/mg996r.json -> station`
+- Firmware: `firmware/servo_tester_cam/` (single board: functional test + OLED HMI)
+- Bring up the simulator first with `python -m host.app --simulate --ui`, then
+  switch to real hardware with `python -m host.app --port COM3 --ui`
+  (functional test and HMI share the one serial port).

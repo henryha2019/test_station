@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 430" width="680" role="img">
-  <title>MG996R servo station — single-board ESP32-CAM wiring</title>
-  <desc>One AI-Thinker ESP32-CAM does functional test, camera, and HMI. Host PC links over USB serial (functional + HMI frames) and Wi-Fi (GET /capture for the host CNN). The board drives the MG996R servo PWM on GPIO13 and an I2C bus on GPIO14/15 shared by the SSD1306 OLED (0x3C), AS5600 angle encoder (0x36) and INA219 current sensor (0x40). Servo power is a separate 5-6V >=3A supply through the INA219; all grounds are common.</desc>
+  <title>MG996R servo station — single-board wiring overview</title>
+  <desc>One ESP32 (or ESP32-CAM used purely as an MCU) runs the servo functional test and drives the OLED HMI, linked to the host PC over a single USB serial connection. The board drives the MG996R servo PWM on GPIO13 and an I2C bus on GPIO14/15 shared by the SSD1306 OLED (0x3C), AS5600 angle encoder (0x36) and INA219 current sensor (0x40). Servo power is a separate 5-6V >=3A supply through the INA219; all grounds are common.</desc>
   <style>
     text { font-family: 'Segoe UI', Arial, sans-serif; }
     .th { font-size: 14px; font-weight: 600; }
@@ -20,18 +20,16 @@
   <!-- Host -->
   <rect x="265" y="40" width="150" height="46" rx="12" fill="#F1EFE8" stroke="#5F5E5A"/>
   <text class="th" x="340" y="60" text-anchor="middle" fill="#2C2C2A">Host PC (Python)</text>
-  <text class="ts" x="340" y="76" text-anchor="middle" fill="#5F5E5A">CNN · owns verdict</text>
+  <text class="ts" x="340" y="76" text-anchor="middle" fill="#5F5E5A">limit-checks · owns verdict</text>
 
-  <!-- Host <-> CAM links -->
-  <line x1="310" y1="86" x2="310" y2="149" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <line x1="370" y1="86" x2="370" y2="149" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <text class="ts" x="305" y="118" text-anchor="end"   fill="#5F5E5A">USB · func+HMI</text>
-  <text class="ts" x="375" y="118" text-anchor="start" fill="#5F5E5A">Wi-Fi · JPEG</text>
+  <!-- Host <-> board link -->
+  <line x1="340" y1="86" x2="340" y2="149" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text class="ts" x="348" y="118" text-anchor="start" fill="#5F5E5A">USB serial · func + HMI</text>
 
   <!-- Single board -->
   <rect x="255" y="150" width="170" height="50" rx="12" fill="#E1F5EE" stroke="#0F6E56"/>
-  <text class="th" x="340" y="172" text-anchor="middle" fill="#085041">ESP32-CAM</text>
-  <text class="ts" x="340" y="190" text-anchor="middle" fill="#085041">single board: func · cam · HMI</text>
+  <text class="th" x="340" y="172" text-anchor="middle" fill="#085041">ESP32 (MCU)</text>
+  <text class="ts" x="340" y="190" text-anchor="middle" fill="#085041">functional test + HMI</text>
 
   <!-- PWM to servo -->
   <line x1="290" y1="200" x2="104" y2="253" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
@@ -43,37 +41,37 @@
   <line x1="250" y1="224" x2="250" y2="253" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
   <line x1="420" y1="224" x2="420" y2="253" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
   <line x1="590" y1="224" x2="590" y2="253" stroke="#5F5E5A" stroke-width="1.5" marker-end="url(#arrow)"/>
-  <text class="ts" x="430" y="219" text-anchor="start" fill="#5F5E5A">I²C 14/15</text>
+  <text class="ts" x="430" y="219" text-anchor="start" fill="#5F5E5A">I2C 14/15</text>
 
   <!-- Peripherals row -->
   <rect x="50" y="254" width="100" height="46" rx="10" fill="#E6F1FB" stroke="#185FA5"/>
   <text class="th" x="100" y="274" text-anchor="middle" fill="#0C447C">MG996R</text>
-  <text class="ts" x="100" y="289" text-anchor="middle" fill="#0C447C">舵机 / DUT</text>
+  <text class="ts" x="100" y="289" text-anchor="middle" fill="#0C447C">servo / DUT</text>
 
   <rect x="200" y="254" width="100" height="46" rx="10" fill="#E6F1FB" stroke="#185FA5"/>
   <text class="th" x="250" y="274" text-anchor="middle" fill="#0C447C">AS5600</text>
-  <text class="ts" x="250" y="289" text-anchor="middle" fill="#0C447C">角度 0x36</text>
+  <text class="ts" x="250" y="289" text-anchor="middle" fill="#0C447C">angle · 0x36</text>
 
   <rect x="370" y="254" width="100" height="46" rx="10" fill="#EEEDFE" stroke="#534AB7"/>
   <text class="th" x="420" y="274" text-anchor="middle" fill="#3C3489">OLED</text>
-  <text class="ts" x="420" y="289" text-anchor="middle" fill="#3C3489">HMI 0x3C</text>
+  <text class="ts" x="420" y="289" text-anchor="middle" fill="#3C3489">HMI · 0x3C</text>
 
   <rect x="540" y="254" width="100" height="46" rx="10" fill="#E6F1FB" stroke="#185FA5"/>
   <text class="th" x="590" y="274" text-anchor="middle" fill="#0C447C">INA219</text>
-  <text class="ts" x="590" y="289" text-anchor="middle" fill="#0C447C">电流 0x40</text>
+  <text class="ts" x="590" y="289" text-anchor="middle" fill="#0C447C">current · 0x40</text>
 
   <!-- Mechanical coaxial link servo <-> AS5600 -->
   <line x1="199" y1="277" x2="151" y2="277" stroke="#185FA5" stroke-width="1.4" stroke-dasharray="4 3"/>
-  <text class="ts" x="175" y="248" text-anchor="middle" fill="#185FA5">同轴磁铁</text>
+  <text class="ts" x="175" y="248" text-anchor="middle" fill="#185FA5">coaxial magnet</text>
 
   <!-- Power -->
   <rect x="180" y="345" width="300" height="46" rx="12" fill="#FAEEDA" stroke="#854F0B"/>
   <text class="th" x="330" y="365" text-anchor="middle" fill="#633806">External 5–6 V ≥3 A supply</text>
-  <text class="ts" x="330" y="381" text-anchor="middle" fill="#633806">servo via INA219 · LEDs · ★ common GND</text>
+  <text class="ts" x="330" y="381" text-anchor="middle" fill="#633806">servo via INA219 · LEDs · common GND</text>
   <line x1="478" y1="345" x2="588" y2="302" stroke="#854F0B" stroke-width="1.4" marker-end="url(#arrowA)"/>
   <text class="ts" x="486" y="328" text-anchor="start" fill="#633806">5–6V → Vin+</text>
 
   <!-- Notes -->
-  <text class="ts" x="40" y="410" text-anchor="start" fill="#5F5E5A">电流: 电源(+) → INA219 Vin+ → Vin- → 舵机(红);  信号 → GPIO13;  ★ 所有 GND 共地</text>
-  <text class="ts" x="40" y="424" text-anchor="start" fill="#5F5E5A">灰线 = 信号/USB/I²C · 橙线 = 电源 · 蓝虚线 = 同轴机械耦合</text>
+  <text class="ts" x="40" y="410" text-anchor="start" fill="#5F5E5A">Current path: supply(+) → INA219 Vin+ → Vin- → servo (red);  signal → GPIO13;  all GND common</text>
+  <text class="ts" x="40" y="424" text-anchor="start" fill="#5F5E5A">Grey = signal/USB/I2C · orange = power · blue dashed = coaxial mechanical coupling</text>
 </svg>

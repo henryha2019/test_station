@@ -17,11 +17,6 @@ number, and drives an **SSD1306 OLED** station HMI over the same serial link.
 host decides. The servo's own 3-pin plug mates a header in the fixture — no pogo
 pins for this DUT.
 
-> **Visual inspection has been split into its own project.** This tester is
-> single-criterion (functional). The visual-inspection pipeline (dataset → CNN →
-> operating point) is being spun out into a dedicated **conveyor AOI** project —
-> see [docs/AOI_CONVEYOR_PLAN.md](docs/AOI_CONVEYOR_PLAN.md).
-
 > **Runs today with no hardware.** A simulation backend speaks the board's wire
 > protocol, so the whole station — limit-checking, traceability, metrics,
 > repeatability — is demoable on any machine.
@@ -72,7 +67,7 @@ python -m host.app --simulate --scenario stalled      # force a functional fault
 python -m analysis.metrics                            # FPY / Pareto / cycle time
 python -m analysis.repeatability                      # Gage R&R
 
-pytest -q                                             # 28 unit tests
+pytest -q                                             # 24 unit tests
 ```
 
 The UI has an *inject* dropdown so you can demo failures live, e.g. **stalled
@@ -134,7 +129,6 @@ tests/                  pytest unit tests (run with no hardware)
 | 3 Fixture | servo nest, poka-yoke, coaxial AS5600 coupler | ⬜ mechanical (CAD) |
 | 8 Metrics | FPY, Pareto, cycle time, Gage R&R | ✅ |
 | 10 Writeup | one-pager + GIF | ✅ docs/WRITEUP.md (GIF TODO) |
-| — Vision | dataset · CNN · operating point | ➡ split into a separate AOI project ([plan](docs/AOI_CONVEYOR_PLAN.md)) |
 
 ## How each discipline reads it
 
@@ -144,4 +138,3 @@ tests/                  pytest unit tests (run with no hardware)
 | **Mechanical** | Servo nest 3-2-1 + poka-yoke, coaxial AS5600 magnet coupling |
 | **Manufacturing** | EOL station, serial traceability, yield + Pareto by parameter, cycle time |
 | **Firmware / Embedded** | Servo PWM + I²C sensors, test state machine + serial protocol, OLED HMI |
-| **Data / ML** | → the **conveyor AOI** project ([plan](docs/AOI_CONVEYOR_PLAN.md)) |

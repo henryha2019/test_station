@@ -4,8 +4,7 @@
 functional response is within spec.** Instruments measure; one host decides and
 logs every unit by serial number.
 
-*(Single-criterion. Visual inspection is being split into a separate
-conveyor-AOI project — see docs/AOI_CONVEYOR_PLAN.md.)*
+*(Single-criterion: functional test only.)*
 
 ## Architecture
 - **ESP32-CAM (used as a plain MCU)** — commands the servo to min/center/max and

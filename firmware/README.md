@@ -7,10 +7,9 @@ host does.
 |---|---|---|
 | `servo_tester_cam/` | AI-Thinker **ESP32-CAM** (as MCU) | Functional instrument **+** HMI. Commands the MG996R and streams raw readings (AS5600 angle, INA219 current, sweep timing), and renders the verdict on an SSD1306 OLED. |
 
-This tester is single-criterion (functional). The board also still contains a
-camera `/capture` server (Wi-Fi), now **unused by the host** — it's kept as the
-starting point for the split-out **conveyor AOI** project (docs/AOI_CONVEYOR_PLAN.md);
-trim it if you repurpose this as a pure functional MCU.
+Single-criterion (functional). The sketch also still contains a camera `/capture`
+server (Wi-Fi) that this tester **does not use** — trim it, or just run a plain
+ESP32 instead of the ESP32-CAM.
 
 ## Pin map (microSD must stay unused to free 13/14/15)
 
@@ -35,8 +34,8 @@ I²C bus is moved to 14/15.
 | `HMI,<serial>,<func>,<final>,<fpy>` | *(renders OLED)* |
 | *(unknown)* | `ERR,unknown_cmd` |
 
-Functional + HMI share this one serial link (`SharedSerialHmi` host-side); the
-image comes over Wi-Fi. Reported keys: `idle_mA`, `angle_center`, `hold_mA`,
+Functional + HMI share this one serial link (`SharedSerialHmi` host-side).
+Reported keys: `idle_mA`, `angle_center`, `hold_mA`,
 `angle_min`, `angle_max`, `move_mA`, `range_deg`, `center_off_deg`, `sweep_ms`,
 `speed_dps`, `direction`. The host checks each against the limit windows in
 `config/mg996r.json` — the firmware knows no limits.
