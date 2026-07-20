@@ -11,8 +11,8 @@ nodes share a common ground.**
 > Physical layout (illustrative, pre-measurement): **[servo_tester_physical_layout.svg](servo_tester_physical_layout.svg)**
 >
 > Note: this station is a **pure functional** test. The ESP32-CAM is used only
-> as an MCU (servo functional test + I2C sensors + OLED) — the on-board camera
-> and `GET /capture` are **not used**. A plain ESP32 works just as well.
+> as an MCU (servo functional test + I2C sensors + OLED) — the firmware never
+> touches the on-board camera or Wi-Fi. A plain ESP32 works just as well.
 
 ---
 
@@ -49,7 +49,7 @@ and OLED are happiest this way, with no level shifting needed.
 | **I2C SDA** (OLED + AS5600 + INA219) | **GPIO14** |
 | **I2C SCL** | **GPIO15** |
 | Serial (functional test + HMI frames) | GPIO1/3 -> programmer base USB -> host |
-| Camera + Wi-Fi | Fixed AI-Thinker pins (do not touch) |
+| Camera + Wi-Fi (unused, firmware never touches these) | Fixed AI-Thinker pins (do not touch) |
 
 > Note: the usual OLED pins 21/22 are the **camera pins** on the ESP32-CAM, so
 > I2C must move to **14/15**.
@@ -94,9 +94,9 @@ Separate 5-6V ─┬── servo (through INA219)
 - **Measurements + HMI**: USB serial (`config -> station.mcu_port`, 115200).
   Functional results come up over serial; the host sends `HMI,...` frames back
   down the **same serial link** to drive the OLED (`SharedSerialHmi`).
-- **Camera**: not used by this pure functional test. The ESP32-CAM's camera and
-  Wi-Fi `/capture` sit idle; the firmware still includes the camera service (it
-  can be stripped, or you can just use a plain ESP32 instead).
+- **Camera**: not used by this pure functional test. The firmware never
+  initializes the camera or Wi-Fi, so a plain ESP32 works just as well as the
+  ESP32-CAM.
 
 ---
 

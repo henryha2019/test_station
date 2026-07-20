@@ -43,13 +43,11 @@ sketch with five things that could each be the culprit.
 - If flashing the AI-Thinker ESP32-CAM: Tools -> Board -> ESP32 Arduino ->
   "AI Thinker ESP32-CAM".
 - If flashing a plain ESP32 dev board instead: Tools -> Board -> ESP32
-  Arduino -> "ESP32 Dev Module". All five bring-up sketches (i2c_scan, as5600,
-  ina219, oled, servo_pwm) use only GPIO13/14/15 and run unmodified on either
-  board. The integrated firmware (`servo_tester_cam.ino`) is written for the
-  ESP32-CAM specifically (it includes camera pin definitions and a Wi-Fi
-  `/capture` server this tester doesn't use) -- see
-  [firmware/README.md](../firmware/README.md) for the option of stripping
-  that out if you'd rather run a plain ESP32.
+  Arduino -> "ESP32 Dev Module". All six sketches -- the five bring-up ones
+  (i2c_scan, as5600, ina219, oled, servo_pwm) and the integrated firmware
+  (`servo_tester_cam.ino`) -- use only GPIO13/14/15 and no camera or Wi-Fi
+  code, so they run unmodified on either board; see
+  [firmware/README.md](../firmware/README.md) for the pin map.
 
 **Python host**
 ```bash
