@@ -7,7 +7,8 @@ Principle: **the board only measures/displays; the host makes the verdict; all
 nodes share a common ground.**
 
 > Wiring overview: **[wiring_mg996r.svg](wiring_mg996r.svg)** · Detailed
-> schematic: **[servo_tester_schematic.svg](servo_tester_schematic.svg)**
+> schematic: **[servo_tester_schematic.svg](servo_tester_schematic.svg)** ·
+> Physical layout (illustrative, pre-measurement): **[servo_tester_physical_layout.svg](servo_tester_physical_layout.svg)**
 >
 > Note: this station is a **pure functional** test. The ESP32-CAM is used only
 > as an MCU (servo functional test + I2C sensors + OLED) — the on-board camera
@@ -100,6 +101,11 @@ Separate 5-6V ─┬── servo (through INA219)
 ---
 
 ## 3. Fixturing (nest / mounting)
+
+See **[servo_tester_physical_layout.svg](servo_tester_physical_layout.svg)** for
+an illustrative sketch of how the pieces below sit relative to each other — it's
+drawn before any physical measurement, so treat it as a layout intent, not a
+dimensioned drawing.
 
 Functional-test accuracy depends on **shaft-to-encoder concentricity**.
 

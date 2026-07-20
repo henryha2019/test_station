@@ -5,7 +5,7 @@ CFG = load_config(DEFAULT_CONFIG)
 
 GOOD = {
     "idle_mA": 8.0, "hold_mA": 25.0, "move_mA": 350.0,
-    "range_deg": 120.0, "center_off_deg": 3.0, "speed_dps": 400.0,
+    "range_deg": 300.0, "center_off_deg": 3.0, "speed_dps": 400.0,
     "direction": "increasing",
 }
 
@@ -17,7 +17,7 @@ def test_good_passes():
 
 
 def test_range_too_small_fails():
-    m = dict(GOOD, range_deg=80.0)
+    m = dict(GOOD, range_deg=100.0)
     res = evaluate(m, CFG)
     assert not res.passed
     assert any(f.param == "range_deg" and f.kind == "low" for f in res.failures)

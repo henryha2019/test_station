@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 333" width="680" role="img">
+<title>MG996R servo tester -- physical assembly (illustrative, pre-measurement)</title>
+<desc>Isometric sketch: a baseplate carries a servo nest with 3-2-1 locating and a poka-yoke feature, holding an MG996R clamped by a manual toggle clamp. A 3-pin female header on the nest wall mates the servo plug -- no pogo pins. A magnet coupler on the servo output shaft sits under an AS5600 board mounted on a coaxial bridge spanning two posts. An electronics tray to the right carries the ESP32 (or ESP32-CAM used as a plain MCU), the INA219 current sensor, and the DC power input. An OLED front panel faces the operator. This is illustrative only, drawn before physical measurement or printing -- dimensions are not to scale.</desc>
+<style>text{font-family:"Segoe UI",Arial,sans-serif;fill:#1f2937;} .th{font-size:14px;font-weight:600;} .ts{font-size:12px;}</style>
+<rect x="0" y="0" width="680" height="333" fill="#ffffff"/>
+<polygon points="288.3,85.3 467.5,188.8 348.0,257.8 168.7,154.3" fill="#bdbbb2" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="168.7,161.2 348.0,264.7 348.0,257.8 168.7,154.3" fill="#97958e" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="467.5,195.7 348.0,264.7 348.0,257.8 467.5,188.8" fill="#75736e" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="252.4,69.2 259.2,73.1 252.4,77.0 245.6,73.1" fill="#9a988f" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="245.6,122.6 252.4,126.5 252.4,77.0 245.6,73.1" fill="#7b7972" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="259.2,122.6 252.4,126.5 252.4,77.0 259.2,73.1" fill="#5f5e58" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="279.3,67.5 285.3,70.9 279.3,74.4 273.3,70.9" fill="#a9a79e" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="273.3,129.6 279.3,133.0 279.3,74.4 273.3,70.9" fill="#87857e" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="285.3,129.6 279.3,133.0 279.3,74.4 285.3,70.9" fill="#686761" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="319.1,90.5 325.1,93.9 319.1,97.4 313.2,93.9" fill="#a9a79e" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="313.2,152.6 319.1,156.0 319.1,97.4 313.2,93.9" fill="#87857e" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="325.1,152.6 319.1,156.0 319.1,97.4 325.1,93.9" fill="#686761" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="274.3,107.1 320.1,133.6 279.3,157.2 233.5,130.7" fill="#43433f" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="233.5,148.0 279.3,174.4 279.3,157.2 233.5,130.7" fill="#353532" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="320.1,150.8 279.3,174.4 279.3,157.2 320.1,133.6" fill="#292927" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="273.3,80.1 304.2,97.9 278.3,112.9 247.4,95.1" fill="#3f74c0" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="247.4,130.7 278.3,148.5 278.3,112.9 247.4,95.1" fill="#325c99" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="304.2,133.6 278.3,148.5 278.3,112.9 304.2,97.9" fill="#274777" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="261.0,127.5 271.9,133.8 267.9,136.1 257.0,129.8" fill="#7b5cc7" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="257.0,137.8 267.9,144.2 267.9,136.1 257.0,129.8" fill="#62499f" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="271.9,141.9 267.9,144.2 267.9,136.1 271.9,133.8" fill="#4c397b" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="275.9,85.1 284.3,89.9 275.9,94.7 267.5,89.9" fill="#cbc9c0" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="267.5,96.8 275.9,101.6 275.9,94.7 267.5,89.9" fill="#a2a099" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="284.3,96.8 275.9,101.6 275.9,94.7 284.3,89.9" fill="#7d7c77" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="276.3,62.8 327.1,92.1 318.1,97.2 267.3,67.9" fill="#1f9a72" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="267.3,72.1 318.1,101.4 318.1,97.2 267.3,67.9" fill="#187b5b" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="327.1,96.2 318.1,101.4 318.1,97.2 327.1,92.1" fill="#135f46" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="252.4,73.8 283.3,91.6 276.5,95.5 245.6,77.7" fill="#cf4f2a" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="245.6,82.3 276.5,100.1 276.5,95.5 245.6,77.7" fill="#a53f21" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="283.3,96.2 276.5,100.1 276.5,95.5 283.3,91.6" fill="#80301a" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="322.1,189.5 379.9,222.8 346.0,242.4 288.3,209.0" fill="#c7c5bc" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="288.3,214.1 346.0,247.4 346.0,242.4 288.3,209.0" fill="#9f9d96" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="379.9,227.9 346.0,247.4 346.0,242.4 379.9,222.8" fill="#7b7a74" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="314.2,194.8 352.0,216.6 330.1,229.3 292.2,207.4" fill="#1f7a55" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="292.2,212.5 330.1,234.3 330.1,229.3 292.2,207.4" fill="#186144" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="352.0,221.7 330.1,234.3 330.1,229.3 352.0,216.6" fill="#134b34" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="324.1,190.4 341.0,200.2 332.7,205.0 315.7,195.2" fill="#2f6fe0" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="315.7,198.9 332.7,208.7 332.7,205.0 315.7,195.2" fill="#2558b3" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="341.0,203.9 332.7,208.7 332.7,205.0 341.0,200.2" fill="#1d448a" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="358.0,206.7 370.9,214.2 362.6,219.0 349.6,211.6" fill="#6b6f76" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="349.6,218.5 362.6,225.9 362.6,219.0 349.6,211.6" fill="#55585e" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="370.9,221.1 362.6,225.9 362.6,219.0 370.9,214.2" fill="#424449" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="396.8,126.1 432.7,146.8 428.7,149.1 392.8,128.4" fill="#33333a" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="392.8,154.9 428.7,175.6 428.7,149.1 392.8,128.4" fill="#28282e" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="432.7,173.3 428.7,175.6 428.7,149.1 432.7,146.8" fill="#1f1f23" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="401.0,132.2 431.3,149.7 430.1,150.4 399.8,132.9" fill="#13355f" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="399.8,149.5 430.1,166.9 430.1,150.4 399.8,132.9" fill="#0f2a4c" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<polygon points="431.3,166.2 430.1,166.9 430.1,150.4 431.3,149.7" fill="#0b203a" stroke="#2b2b29" stroke-width="0.6" stroke-linejoin="round"/>
+<line x1="297.2" y1="80.0" x2="437.2" y2="50.0" stroke="#8a8a8a" stroke-width="1"/>
+<circle cx="297.2" cy="80.0" r="2" fill="#8a8a8a"/>
+<text class="ts" x="437.2" y="47.0" text-anchor="start">AS5600 bridge</text>
+<line x1="275.9" y1="89.9" x2="415.9" y2="93.9" stroke="#8a8a8a" stroke-width="1"/>
+<circle cx="275.9" cy="89.9" r="2" fill="#8a8a8a"/>
+<text class="ts" x="415.9" y="90.9" text-anchor="start">magnet coupler</text>
+<line x1="264.5" y1="131.8" x2="404.5" y2="165.8" stroke="#8a8a8a" stroke-width="1"/>
+<circle cx="264.5" cy="131.8" r="2" fill="#8a8a8a"/>
+<text class="ts" x="404.5" y="162.8" text-anchor="start">3-pin header</text>
+<line x1="275.8" y1="96.5" x2="135.8" y2="90.5" stroke="#8a8a8a" stroke-width="1"/>
+<circle cx="275.8" cy="96.5" r="2" fill="#8a8a8a"/>
+<text class="ts" x="135.8" y="87.5" text-anchor="end">MG996R servo</text>
+<line x1="276.8" y1="132.2" x2="126.8" y2="158.2" stroke="#8a8a8a" stroke-width="1"/>
+<circle cx="276.8" cy="132.2" r="2" fill="#8a8a8a"/>
+<text class="ts" x="126.8" y="155.2" text-anchor="end">servo nest</text>
+<line x1="264.5" y1="84.7" x2="124.5" y2="50.7" stroke="#8a8a8a" stroke-width="1"/>
+<circle cx="264.5" cy="84.7" r="2" fill="#8a8a8a"/>
+<text class="ts" x="124.5" y="47.7" text-anchor="end">toggle clamp</text>
+<line x1="334.1" y1="215.9" x2="344.1" y2="275.9" stroke="#8a8a8a" stroke-width="1"/>
+<circle cx="334.1" cy="215.9" r="2" fill="#8a8a8a"/>
+<text class="ts" x="344.1" y="272.9" text-anchor="start">electronics tray</text>
+<line x1="322.1" y1="212.0" x2="472.1" y2="210.0" stroke="#8a8a8a" stroke-width="1"/>
+<circle cx="322.1" cy="212.0" r="2" fill="#8a8a8a"/>
+<text class="ts" x="472.1" y="207.0" text-anchor="start">MCU + INA219</text>
+<line x1="360.3" y1="212.9" x2="510.3" y2="182.9" stroke="#8a8a8a" stroke-width="1"/>
+<circle cx="360.3" cy="212.9" r="2" fill="#8a8a8a"/>
+<text class="ts" x="510.3" y="179.9" text-anchor="start">DC 5-6V input</text>
+<line x1="415.5" y1="141.3" x2="555.5" y2="195.3" stroke="#8a8a8a" stroke-width="1"/>
+<circle cx="415.5" cy="141.3" r="2" fill="#8a8a8a"/>
+<text class="ts" x="555.5" y="192.3" text-anchor="start">OLED panel</text>
+<line x1="342.0" y1="242.8" x2="482.0" y2="262.8" stroke="#8a8a8a" stroke-width="1"/>
+<circle cx="342.0" cy="242.8" r="2" fill="#8a8a8a"/>
+<text class="ts" x="482.0" y="259.8" text-anchor="start">baseplate</text>
+<text class="ts" x="20" y="301" text-anchor="start">Illustrative sketch, not to scale -- dimensions TBD after physical measurement.</text>
+<text class="ts" x="20" y="317" text-anchor="start">See docs/HARDWARE.md for the wiring this layout implies.</text>
+</svg>

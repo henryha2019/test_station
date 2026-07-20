@@ -6,10 +6,12 @@ host does.
 | Sketch | Board | Role |
 |---|---|---|
 | `servo_tester_cam/` | AI-Thinker **ESP32-CAM** (as MCU) | Functional instrument **+** HMI. Commands the MG996R and streams raw readings (AS5600 angle, INA219 current, sweep timing), and renders the verdict on an SSD1306 OLED. |
+| `test_i2c_scan/`, `test_as5600/`, `test_ina219/`, `test_oled/`, `test_servo_pwm/` | either board | Standalone bring-up sketches — one per peripheral, no dependency on each other or on `servo_tester_cam`. Run these first; see [docs/RUNBOOK.md](../docs/RUNBOOK.md). These use only GPIO13/14/15 and have no camera code, so they run unmodified on a plain ESP32 too. |
 
-Single-criterion (functional). The sketch also still contains a camera `/capture`
-server (Wi-Fi) that this tester **does not use** — trim it, or just run a plain
-ESP32 instead of the ESP32-CAM.
+Single-criterion (functional). The main sketch also still contains a camera
+`/capture` server (Wi-Fi) that this tester **does not use** — trim it, or just
+run a plain ESP32 instead of the ESP32-CAM (the bring-up sketches above already
+do).
 
 ## Pin map (microSD must stay unused to free 13/14/15)
 
@@ -39,6 +41,12 @@ Reported keys: `idle_mA`, `angle_center`, `hold_mA`,
 `angle_min`, `angle_max`, `move_mA`, `range_deg`, `center_off_deg`, `sweep_ms`,
 `speed_dps`, `direction`. The host checks each against the limit windows in
 `config/mg996r.json` — the firmware knows no limits.
+
+`angle_center`/`angle_min`/`angle_max` are **relative to the start of each
+test** (continuously unwrapped across the AS5600's 0/360 wrap, since this
+servo's travel is close to a full turn), not absolute encoder degrees —
+`angle_center` reads ~0 by construction. Only the differences (`range_deg`,
+`center_off_deg`) are meaningful, which is all the host actually checks.
 
 Wi-Fi (**default STA + mDNS**): the board joins your network and advertises
 itself, so the host fetches images at `http://pogotest-cam.local/capture` and

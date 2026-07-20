@@ -45,7 +45,8 @@ pins for this DUT.
 readings (`MEAS,<key>,<value>` … `DONE`). The host compares each to the recipe's
 spec window and decides PASS/FAIL. Classic ATE: instruments measure, host decides.
 
-See **[docs/HARDWARE.md](docs/HARDWARE.md)** for the BOM, wiring, and fixturing.
+See **[docs/HARDWARE.md](docs/HARDWARE.md)** for the BOM, wiring, and fixturing, and
+**[docs/RUNBOOK.md](docs/RUNBOOK.md)** for the full flash-to-calibrated-verdict procedure.
 
 ---
 
@@ -76,14 +77,22 @@ servo → FAIL (FUNCTIONAL)**. Functional fault scenarios (sim): `good`,
 
 ## Bring-up on real hardware
 
+**[docs/RUNBOOK.md](docs/RUNBOOK.md) is the full step-by-step** — per-peripheral
+bring-up sketches, flashing the integrated firmware, and calibrating the limit
+windows against your actual servo. Short version:
+
 1. Wire per [docs/HARDWARE.md](docs/HARDWARE.md): servo → GPIO13, AS5600 + INA219 +
    OLED on I²C 14/15, **leave microSD unused**, servo on a separate 5–6 V supply,
    common ground.
-2. Flash `firmware/servo_tester_cam/` to the ESP32-CAM (needs `Adafruit_INA219`,
+2. Flash and read each sketch in `firmware/test_i2c_scan/`, `test_as5600/`,
+   `test_ina219/`, `test_oled/`, `test_servo_pwm/` — confirms every peripheral in
+   isolation before trusting the integrated firmware.
+3. Flash `firmware/servo_tester_cam/` to the ESP32-CAM (needs `Adafruit_INA219`,
    `Adafruit_SSD1306`). It runs the functional test + OLED HMI on the one board.
-3. Edit `config/mg996r.json` → `station.mcu_port` and the functional limit
-   windows (tune to your golden-sample population).
-4. Run the live station (one port; the OLED is driven over that same link):
+4. Edit `config/mg996r.json` → `station.mcu_port`, then **calibrate** the
+   functional limit windows against your actual servo (they ship as wide
+   placeholders — see the runbook's calibration section).
+5. Run the live station (one port; the OLED is driven over that same link):
    ```bash
    python -m host.app --port COM3 --ui
    ```
@@ -114,6 +123,7 @@ the analog readings** — not just yield. Artifacts land in `out/`. See
 ```
 config/mg996r.json      DUT recipe: PWM profile + functional limit windows
 firmware/servo_tester_cam   ESP32-CAM: commands servo, reads sensors, drives OLED
+firmware/test_*         per-peripheral bring-up sketches (see docs/RUNBOOK.md)
 host/                   orchestrator · instrument · functional · decision · csv · ui
 analysis/               metrics (FPY/Pareto/cycle time) · repeatability (Gage R&R)
 scripts/run_demo.py     one-command end-to-end simulated demo

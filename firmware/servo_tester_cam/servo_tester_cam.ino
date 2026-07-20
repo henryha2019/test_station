@@ -66,7 +66,8 @@ const int      SERVO_CH   = 4;       // LEDC channel
 const int      PWM_MIN    = 1000;    // us — mirror config/mg996r.json pwm_us
 const int      PWM_CENTER = 1500;
 const int      PWM_MAX    = 2000;
-const int      SETTLE_MS  = 600;
+const int      SETTLE_MS  = 1200;    // must comfortably exceed a full-range sweep time;
+                                      // mirror config/mg996r.json functional.settle_ms
 const uint8_t  AS5600_ADDR = 0x36;
 
 // ---- Wi-Fi ----------------------------------------------------------------
@@ -98,7 +99,7 @@ void servoWriteUS(int us) {
 // =========================================================================
 // Sensors
 // =========================================================================
-float readAngleDeg() {
+float readAngleDeg() {                               // raw AS5600 reading, 0-360, -1 = I2C error
   Wire.beginTransmission(AS5600_ADDR);
   Wire.write(0x0E);                                  // ANGLE register (high byte)
   if (Wire.endTransmission(false) != 0) return -1.0;
@@ -114,16 +115,56 @@ float readCurrent_mA() {
   return mA < 0 ? -mA : mA;                          // magnitude
 }
 
-float moveTo(int us) {                               // settle, return peak current
+// The MG996R used here travels close to a full turn (per-unit spec), so a
+// single-point angle_min/angle_max sample can land on opposite sides of the
+// AS5600's 0/360 wrap and corrupt range_deg (e.g. reading 5 degrees of travel
+// when the shaft actually moved 355). Track angle continuously during each
+// move and unwrap it instead: each new sample is compared to the previous
+// one, and any jump greater than 180 degrees is assumed to be a wrap (not
+// real motion) and folded back. This is only valid if the shaft can't
+// actually move more than 180 degrees between two consecutive samples --
+// true here since speed_dps is spec'd well under 1000 deg/s and samples are
+// taken every few milliseconds. angle_center/angle_min/angle_max below are
+// therefore relative to the start of the test (angle_center reads ~0 by
+// construction), not absolute encoder positions -- only their differences
+// (range_deg, center_off_deg) are meaningful, which is all the host checks.
+float g_unwrapped    = 0;   // accumulated angle since resetAngleTracking(), deg
+float g_lastRawAngle = -1;  // last raw (0-360) AS5600 sample this test, -1 = none yet
+
+void resetAngleTracking() {
+  g_unwrapped = 0;
+  g_lastRawAngle = -1;
+}
+
+float sampleAngleUnwrapped() {
+  float raw = readAngleDeg();
+  if (raw < 0) return g_unwrapped;            // I2C read failed; skip this sample
+  if (g_lastRawAngle < 0) {                   // first good sample since the last reset
+    g_lastRawAngle = raw;
+    return g_unwrapped;
+  }
+  float delta = raw - g_lastRawAngle;
+  if (delta > 180.0)  delta -= 360.0;
+  if (delta < -180.0) delta += 360.0;
+  g_unwrapped += delta;
+  g_lastRawAngle = raw;
+  return g_unwrapped;
+}
+
+struct MoveResult { float peak_mA; float angleDeg; };
+
+MoveResult moveTo(int us) {          // settle, return peak current + unwrapped angle
   servoWriteUS(us);
   unsigned long t0 = millis();
   float peak = 0;
+  float angle = g_unwrapped;
   while (millis() - t0 < SETTLE_MS) {
     float i = readCurrent_mA();
     if (i > peak) peak = i;
+    angle = sampleAngleUnwrapped();
     delay(5);
   }
-  return peak;
+  return MoveResult{peak, angle};
 }
 
 // =========================================================================
@@ -142,29 +183,27 @@ void runTest() {
   servoWriteUS(PWM_CENTER); delay(150);
   emit("idle_mA", readCurrent_mA());
 
-  moveTo(PWM_CENTER);
-  float aCenter = readAngleDeg();
-  emit("angle_center", aCenter);
+  resetAngleTracking();                              // zero the unwrap reference at center
+  MoveResult center = moveTo(PWM_CENTER);
+  emit("angle_center", center.angleDeg);
   emit("hold_mA", readCurrent_mA());
 
-  moveTo(PWM_MIN);
-  float aMin = readAngleDeg();
-  emit("angle_min", aMin);
+  MoveResult minR = moveTo(PWM_MIN);
+  emit("angle_min", minR.angleDeg);
 
   unsigned long ts = millis();
-  float movePeak = moveTo(PWM_MAX);
+  MoveResult maxR = moveTo(PWM_MAX);
   unsigned long sweep = millis() - ts;
-  float aMax = readAngleDeg();
-  emit("angle_max", aMax);
-  emit("move_mA", movePeak);
+  emit("angle_max", maxR.angleDeg);
+  emit("move_mA", maxR.peak_mA);
 
-  float range = fabs(aMax - aMin);
-  float mid = (aMin + aMax) / 2.0;
+  float range = fabs(maxR.angleDeg - minR.angleDeg);
+  float mid = (minR.angleDeg + maxR.angleDeg) / 2.0;
   emit("range_deg", range);
-  emit("center_off_deg", fabs(mid - aCenter));
+  emit("center_off_deg", fabs(mid - center.angleDeg));
   emit("sweep_ms", (float)sweep);
   emit("speed_dps", sweep > 0 ? range / (sweep / 1000.0) : 0.0);
-  emitStr("direction", (aMax >= aMin) ? "increasing" : "decreasing");
+  emitStr("direction", (maxR.angleDeg >= minR.angleDeg) ? "increasing" : "decreasing");
 
   servoWriteUS(PWM_CENTER);                          // park
   Serial.print("DONE,"); Serial.println(millis() - t0);

@@ -1,7 +1,7 @@
 """Functional instrument transport (the servo test instrument).
 
 `Instrument` is the interface the orchestrator depends on. Two backends:
-  * SerialInstrument — talks to the Uno over USB serial (pyserial). The Uno
+  * SerialInstrument — talks to the board over USB serial (pyserial). The board
     commands the servo and reports AS5600 angle + INA219 current readings.
   * SimInstrument    — synthesizes the SAME wire protocol from a fault scenario,
     so the whole station runs with no hardware. It emits real MEAS/DONE text and
@@ -48,7 +48,7 @@ class SerialInstrument(Instrument):
         import serial  # local import so the sim path needs no pyserial
         import time
         self._ser = serial.Serial(port, baud, timeout=timeout)
-        time.sleep(2.0)  # Uno auto-resets on port open; wait for boot
+        time.sleep(2.0)  # the board auto-resets on port open; wait for boot
         self._ser.reset_input_buffer()
 
     def _cmd(self, cmd: str) -> None:
@@ -96,12 +96,16 @@ class SerialInstrument(Instrument):
 # --------------------------------------------------------------------------- #
 # Simulation
 # --------------------------------------------------------------------------- #
-# Nominal readings for a healthy MG996R (rough, illustrative values).
+# Nominal readings for a healthy MG996R (rough, illustrative values). This unit
+# is the extended-travel variant (~180 degrees each way from center), hence
+# range_deg ~300 rather than the ~120 of a standard hobby servo -- keep this in
+# sync with config/mg996r.json's range_deg window (also a placeholder pending
+# calibration against the real hardware).
 _NOMINAL = {
     "idle_mA": 8.0,
     "hold_mA": 25.0,
     "move_mA": 350.0,
-    "range_deg": 120.0,
+    "range_deg": 300.0,
     "center_off_deg": 3.0,
     "speed_dps": 400.0,
 }
